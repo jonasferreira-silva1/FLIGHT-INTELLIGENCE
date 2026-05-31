@@ -1,0 +1,14 @@
+{
+  "name": "rec-flight-intelligence",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev:web": "pnpm --filter web dev",
+    "build:web": "pnpm --filter web build",
+    "start:web": "pnpm --filter web start",
+    "lint": "pnpm --recursive run lint"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
