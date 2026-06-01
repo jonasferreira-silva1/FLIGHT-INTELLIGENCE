@@ -1,0 +1,47 @@
+// Este é o arquivo de schema do Prisma.
+// Aqui definimos a conexão com o banco de dados e os modelos (tabelas) da aplicação.
+// Mais informações: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Modelo que representa um Voo (dados estáticos/planejados)
+model Flight {
+  id            String   @id @default(uuid())
+  callsign      String   @unique // Código do voo (ex: GLO1234)
+  origin        String?  // ICAO/IATA do aeroporto de origem
+  destination   String?  // ICAO/IATA do aeroporto de destino
+  airline       String?  // Companhia aérea
+  scheduledDep  DateTime? // Partida programada
+  scheduledArr  DateTime? // Chegada programada
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relacionamento 1-N: um voo possui vários estados de telemetria
+  states        FlightState[]
+}
+
+// Modelo que representa a telemetria do voo em um determinado instante (tempo real)
+model FlightState {
+  id          String   @id @default(uuid())
+  flightId    String   // Chave estrangeira para o Flight
+  flight      Flight   @relation(fields: [flightId], references: [id])
+  
+  latitude    Float
+  longitude   Float
+  altitude    Float?   // Altitude em metros
+  velocity    Float?   // Velocidade em m/s
+  heading     Float?   // Direção (0-360 graus)
+  onGround    Boolean  @default(false) // Se o avião está no solo
+  timestamp   DateTime @default(now()) // Momento exato da coleta
+
+  // Índices para otimizar as buscas por voo e por data (importante para performance)
+  @@index([flightId])
+  @@index([timestamp])
+}
