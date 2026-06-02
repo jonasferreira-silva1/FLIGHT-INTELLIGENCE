@@ -5,6 +5,7 @@ import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
 import { FlightsModule } from './flights/flights.module';
 import { SchedulerModule } from './scheduler/scheduler.module';
+import { AlertsModule } from './alerts/alerts.module';
 
 // O AppModule é o módulo raiz da nossa API.
 // Aqui nós registramos todos os outros módulos, controladores e provedores que compõem o sistema.
@@ -14,9 +15,11 @@ import { SchedulerModule } from './scheduler/scheduler.module';
     PrismaModule, // Módulo global de banco de dados
     FlightsModule, // Módulo da API REST de voos
     SchedulerModule, // Módulo que orquestra a coleta de dados externa
+    AlertsModule, // Módulo do sistema de alertas e endpoints HTTP correspondentes
   ], 
   controllers: [AppController], // Controladores responsáveis por expor as rotas HTTP (ex: GET /health)
   providers: [AppService], // Serviços contendo a regra de negócios injetável
 })
 export class AppModule {}
+
 

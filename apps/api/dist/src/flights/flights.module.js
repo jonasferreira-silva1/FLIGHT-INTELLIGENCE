@@ -10,13 +10,15 @@ exports.FlightsModule = void 0;
 const common_1 = require("@nestjs/common");
 const flights_controller_1 = require("./flights.controller");
 const flights_service_1 = require("./flights.service");
+const flights_gateway_1 = require("./flights.gateway");
 let FlightsModule = class FlightsModule {
 };
 exports.FlightsModule = FlightsModule;
 exports.FlightsModule = FlightsModule = __decorate([
     (0, common_1.Module)({
         controllers: [flights_controller_1.FlightsController],
-        providers: [flights_service_1.FlightsService],
+        providers: [flights_service_1.FlightsService, flights_gateway_1.FlightsGateway],
+        exports: [flights_service_1.FlightsService, flights_gateway_1.FlightsGateway],
     })
 ], FlightsModule);
 //# sourceMappingURL=flights.module.js.map

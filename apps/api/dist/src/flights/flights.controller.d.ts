@@ -1,28 +1,76 @@
 import { FlightsService } from './flights.service';
 export declare class FlightsController {
     private readonly flightsService;
+    private readonly logger;
     constructor(flightsService: FlightsService);
-    getLiveFlights(): Promise<({
-        states: {
-            id: string;
-            onGround: boolean;
-            timestamp: Date;
-            flightId: string;
-            latitude: number;
-            longitude: number;
-            altitude: number | null;
-            velocity: number | null;
-            heading: number | null;
-        }[];
-    } & {
-        id: string;
-        callsign: string;
-        origin: string | null;
-        destination: string | null;
-        airline: string | null;
-        scheduledDep: Date | null;
-        scheduledArr: Date | null;
-        createdAt: Date;
-        updatedAt: Date;
-    })[]>;
+    getLiveFlights(): Promise<{
+        id: any;
+        callsign: any;
+        icao24: any;
+        airline: any;
+        airlineCode: string;
+        origin: any;
+        originCity: string;
+        destination: any;
+        destinationCity: string;
+        status: string;
+        scheduledDeparture: any;
+        scheduledArrival: any;
+        actualDeparture: any;
+        actualArrival: any;
+        gate: any;
+        terminal: any;
+        aircraft: any;
+        delayMinutes: number;
+    }[]>;
+    getLivePositions(): Promise<{
+        flightId: any;
+        callsign: any;
+        airline: any;
+        latitude: any;
+        longitude: any;
+        altitude: any;
+        velocity: any;
+        heading: any;
+        onGround: any;
+        status: string;
+        origin: any;
+        destination: any;
+        capturedAt: any;
+    }[]>;
+    getFlightById(id: string): Promise<{
+        id: any;
+        callsign: any;
+        icao24: any;
+        airline: any;
+        airlineCode: string;
+        origin: any;
+        originCity: string;
+        destination: any;
+        destinationCity: string;
+        status: string;
+        scheduledDeparture: any;
+        scheduledArrival: any;
+        actualDeparture: any;
+        actualArrival: any;
+        gate: any;
+        terminal: any;
+        aircraft: any;
+        delayMinutes: number;
+    }>;
+    getFlightStates(id: string): Promise<{
+        flightId: any;
+        callsign: any;
+        airline: any;
+        latitude: any;
+        longitude: any;
+        altitude: any;
+        velocity: any;
+        heading: any;
+        onGround: any;
+        status: string;
+        origin: any;
+        destination: any;
+        capturedAt: any;
+    }[]>;
 }

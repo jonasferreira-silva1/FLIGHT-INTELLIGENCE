@@ -14,6 +14,7 @@ const app_service_1 = require("./app.service");
 const prisma_module_1 = require("./prisma/prisma.module");
 const flights_module_1 = require("./flights/flights.module");
 const scheduler_module_1 = require("./scheduler/scheduler.module");
+const alerts_module_1 = require("./alerts/alerts.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -24,6 +25,7 @@ exports.AppModule = AppModule = __decorate([
             prisma_module_1.PrismaModule,
             flights_module_1.FlightsModule,
             scheduler_module_1.SchedulerModule,
+            alerts_module_1.AlertsModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

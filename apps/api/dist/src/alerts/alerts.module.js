@@ -6,20 +6,24 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SchedulerModule = void 0;
+exports.AlertsModule = void 0;
 const common_1 = require("@nestjs/common");
-const axios_1 = require("@nestjs/axios");
-const opensky_service_1 = require("./opensky.service");
-const flight_sync_service_1 = require("./flight-sync.service");
-const alerts_module_1 = require("../alerts/alerts.module");
+const alerts_service_1 = require("./alerts.service");
+const alerts_controller_1 = require("./alerts.controller");
 const flights_module_1 = require("../flights/flights.module");
-let SchedulerModule = class SchedulerModule {
+const prisma_module_1 = require("../prisma/prisma.module");
+let AlertsModule = class AlertsModule {
 };
-exports.SchedulerModule = SchedulerModule;
-exports.SchedulerModule = SchedulerModule = __decorate([
+exports.AlertsModule = AlertsModule;
+exports.AlertsModule = AlertsModule = __decorate([
     (0, common_1.Module)({
-        imports: [axios_1.HttpModule, alerts_module_1.AlertsModule, flights_module_1.FlightsModule],
-        providers: [opensky_service_1.OpenskyService, flight_sync_service_1.FlightSyncService],
+        imports: [
+            prisma_module_1.PrismaModule,
+            flights_module_1.FlightsModule,
+        ],
+        controllers: [alerts_controller_1.AlertsController],
+        providers: [alerts_service_1.AlertsService],
+        exports: [alerts_service_1.AlertsService],
     })
-], SchedulerModule);
-//# sourceMappingURL=scheduler.module.js.map
+], AlertsModule);
+//# sourceMappingURL=alerts.module.js.map

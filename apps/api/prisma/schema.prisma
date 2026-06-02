@@ -24,6 +24,8 @@ model Flight {
 
   // Relacionamento 1-N: um voo possui vários estados de telemetria
   states        FlightState[]
+  // Relacionamento 1-N: um voo possui vários alertas de telemetria
+  alerts        Alert[]
 }
 
 // Modelo que representa a telemetria do voo em um determinado instante (tempo real)
@@ -43,4 +45,22 @@ model FlightState {
   // Índices para otimizar as buscas por voo e por data (importante para performance)
   @@index([flightId])
   @@index([timestamp])
+  @@index([flightId, timestamp]) // Índice composto para buscar o último estado de um voo rapidamente
 }
+
+// Modelo que representa um alerta de voo emitido
+model Alert {
+  id        String   @id @default(uuid())
+  flightId  String   // Chave estrangeira para o Flight
+  flight    Flight   @relation(fields: [flightId], references: [id], onDelete: Cascade)
+  type      String   // 'delay' | 'landed' | 'departed'
+  message   String   // Mensagem descritiva legível
+  timestamp DateTime @default(now()) // Momento de geração do alerta
+  read      Boolean  @default(false) // Status de leitura pelo usuário
+
+  // Índices para otimização de buscas e consultas ordenadas
+  @@index([flightId])
+  @@index([timestamp])
+  @@index([flightId, timestamp])
+}
+
