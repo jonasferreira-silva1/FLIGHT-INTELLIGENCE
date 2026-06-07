@@ -18,9 +18,11 @@
  *   npm run start:dev
  */
 
-import { PrismaClient } from '@prisma/client';
+import 'dotenv/config';
+import { PrismaService } from '../src/prisma/prisma.service';
 
-const prisma = new PrismaClient();
+const prisma = new PrismaService();
+
 
 // ─── Configuração ─────────────────────────────────────────────────────────────
 

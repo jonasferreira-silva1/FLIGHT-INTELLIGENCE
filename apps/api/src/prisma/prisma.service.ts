@@ -1,23 +1,37 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
 
 @Injectable()
-export class PrismaService extends PrismaClient implements OnModuleInit {
+export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
+  private pool: Pool | null;
+
   constructor() {
-    // Configura o Pool do node-postgres (pg)
-    const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-    
-    // Configura o adapter do Prisma 7
-    const adapter = new PrismaPg(pool);
-    
-    // Passa o adapter para o PrismaClient
-    super({ adapter });
+    const url = process.env.DATABASE_URL ?? '';
+    let poolInstance: Pool | null = null;
+    let config: any = {};
+
+    if (url.startsWith('prisma+postgres://')) {
+      config = { accelerateUrl: url };
+    } else {
+      poolInstance = new Pool({ connectionString: url });
+      const adapter = new PrismaPg(poolInstance);
+      config = { adapter };
+    }
+
+    super(config);
+    this.pool = poolInstance;
   }
 
   async onModuleInit() {
     await this.$connect();
   }
-}
 
+  async onModuleDestroy() {
+    await this.$disconnect();
+    if (this.pool) {
+      await this.pool.end();
+    }
+  }
+}

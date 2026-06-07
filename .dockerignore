@@ -1,0 +1,49 @@
+# ── Git e IDEs ────────────────────────────────────────────────────────────────
+.git
+.gitignore
+.vscode
+.idea
+.kiro
+*.suo *.ntvs* *.njsproj *.sln *.sw?
+
+# ── Projeto de referência (nunca vai para produção) ───────────────────────────
+modelo-referencia
+
+# ── node_modules (nunca copiar — o Docker instala dentro do container) ────────
+node_modules
+**/node_modules
+
+# ── Artefatos de build locais ─────────────────────────────────────────────────
+apps/api/dist
+apps/web/.next
+apps/web/out
+*.tsbuildinfo
+
+# ── Testes e cobertura ────────────────────────────────────────────────────────
+apps/api/test
+coverage
+**/coverage
+**/*.spec.ts
+**/*.spec.js
+**/*.test.ts
+
+# ── Logs ──────────────────────────────────────────────────────────────────────
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# ── Segredos e env locais ─────────────────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+apps/api/.env
+apps/web/.env.local
+
+# ── Documentação ──────────────────────────────────────────────────────────────
+README.md
+*.md
+LICENSE
+
+# ── Docker/CI ─────────────────────────────────────────────────────────────────
+.dockerignore
+.github

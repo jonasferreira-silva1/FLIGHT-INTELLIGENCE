@@ -68,9 +68,10 @@ export class AlertsService {
     flightId: string,
     currentState: any, // FlightState do Prisma
     previousState?: any, // FlightState do Prisma anterior (opcional)
+    flightEntity?: any, // Voo pré-carregado para evitar query N+1 (opcional)
   ) {
-    // 1. Busca os metadados planejados do voo
-    const flight = await this.prisma.flight.findUnique({
+    // 1. Busca os metadados planejados do voo (ou usa o objeto pré-carregado)
+    const flight = flightEntity || await this.prisma.flight.findUnique({
       where: { id: flightId },
     });
 

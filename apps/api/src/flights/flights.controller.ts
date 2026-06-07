@@ -11,6 +11,16 @@ export class FlightsController {
   constructor(private readonly flightsService: FlightsService) {}
 
   /**
+   * Retorna todos os voos cadastrados no banco.
+   * GET /flights
+   */
+  @Get()
+  async getFlights() {
+    this.logger.debug('Requisitando todos os voos...');
+    return this.flightsService.getFlights();
+  }
+
+  /**
    * Retorna a lista de voos ativos com atualizações recentes (últimos 10 minutos).
    * GET /flights/live
    */

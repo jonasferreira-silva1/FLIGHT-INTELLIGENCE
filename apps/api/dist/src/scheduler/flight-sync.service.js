@@ -101,7 +101,7 @@ let FlightSyncService = FlightSyncService_1 = class FlightSyncService {
                     onGround,
                 },
             });
-            await this.alertsService.processFlightState(flight.id, currentState, previousState);
+            await this.alertsService.processFlightState(flight.id, currentState, previousState, flight);
             const positionData = this.flightsService.mapFlightStateToPosition(currentState, flight);
             this.gateway.emitFlightUpdate(positionData);
             updatedCount++;

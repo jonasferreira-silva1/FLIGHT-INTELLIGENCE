@@ -105,6 +105,23 @@ export class FlightsService {
   constructor(private readonly prisma: PrismaService) {}
 
   /**
+   * Retorna todos os voos cadastrados no banco com seus estados mais recentes
+   * GET /flights
+   */
+  async getFlights() {
+    const flights = await this.prisma.flight.findMany({
+      include: {
+        states: {
+          orderBy: { timestamp: 'desc' },
+          take: 1,
+        },
+      },
+      orderBy: { updatedAt: 'desc' },
+    });
+    return flights.map(f => this.mapFlightToFrontend(f));
+  }
+
+  /**
    * Retorna a lista dos voos ativos que receberam telemetria nos últimos 10 minutos
    */
   async getLiveFlights() {

@@ -12,5 +12,5 @@ export declare class AlertsService {
     constructor(prisma: PrismaService, gateway: FlightsGateway);
     calculateHaversineDistance(lat1: number, lon1: number, lat2: number, lon2: number): number;
     estimateTimeToTarget(distanceKm: number, velocityMs: number | null): number;
-    processFlightState(flightId: string, currentState: any, previousState?: any): Promise<void>;
+    processFlightState(flightId: string, currentState: any, previousState?: any, flightEntity?: any): Promise<void>;
 }

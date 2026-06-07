@@ -1,4 +1,4 @@
-import { Controller, Get, Put, Delete, Param, Logger } from '@nestjs/common';
+import { Controller, Get, Patch, Delete, Param, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 /**
@@ -38,9 +38,28 @@ export class AlertsController {
 
   /**
    * Marca um alerta específico como lido pelo usuário.
-   * PUT /alerts/:id/read
+  /**
+   * Marca TODOS os alertas como lidos.
+   * PATCH /alerts/read-all
    */
-  @Put(':id/read')
+  @Patch('read-all')
+  async markAllAsRead() {
+    this.logger.log('Marcando todos os alertas como lidos.');
+    const result = await this.prisma.alert.updateMany({
+      where: { read: false },
+      data: { read: true },
+    });
+    return {
+      status: 'ok',
+      message: `${result.count} alertas foram marcados como lidos.`,
+    };
+  }
+
+  /**
+   * Marca um alerta específico como lido pelo usuário.
+   * PATCH /alerts/:id/read
+   */
+  @Patch(':id/read')
   async markAsRead(@Param('id') id: string) {
     this.logger.debug(`Marcando alerta ${id} como lido.`);
     return this.prisma.alert.update({

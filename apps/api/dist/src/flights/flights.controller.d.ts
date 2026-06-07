@@ -3,6 +3,26 @@ export declare class FlightsController {
     private readonly flightsService;
     private readonly logger;
     constructor(flightsService: FlightsService);
+    getFlights(): Promise<{
+        id: any;
+        callsign: any;
+        icao24: any;
+        airline: any;
+        airlineCode: string;
+        origin: any;
+        originCity: string;
+        destination: any;
+        destinationCity: string;
+        status: string;
+        scheduledDeparture: any;
+        scheduledArrival: any;
+        actualDeparture: any;
+        actualArrival: any;
+        gate: any;
+        terminal: any;
+        aircraft: any;
+        delayMinutes: number;
+    }[]>;
     getLiveFlights(): Promise<{
         id: any;
         callsign: any;

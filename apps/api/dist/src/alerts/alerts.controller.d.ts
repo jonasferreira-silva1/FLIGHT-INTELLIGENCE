@@ -18,6 +18,10 @@ export declare class AlertsController {
         message: string;
         read: boolean;
     })[]>;
+    markAllAsRead(): Promise<{
+        status: string;
+        message: string;
+    }>;
     markAsRead(id: string): Promise<{
         id: string;
         timestamp: Date;

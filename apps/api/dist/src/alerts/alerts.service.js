@@ -54,8 +54,8 @@ let AlertsService = AlertsService_1 = class AlertsService {
         const distanceMeters = distanceKm * 1000;
         return distanceMeters / speed;
     }
-    async processFlightState(flightId, currentState, previousState) {
-        const flight = await this.prisma.flight.findUnique({
+    async processFlightState(flightId, currentState, previousState, flightEntity) {
+        const flight = flightEntity || await this.prisma.flight.findUnique({
             where: { id: flightId },
         });
         if (!flight) {

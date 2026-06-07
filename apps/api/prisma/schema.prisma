@@ -26,13 +26,15 @@ model Flight {
   states        FlightState[]
   // Relacionamento 1-N: um voo possui vários alertas de telemetria
   alerts        Alert[]
+
+  @@index([updatedAt])
 }
 
 // Modelo que representa a telemetria do voo em um determinado instante (tempo real)
 model FlightState {
   id          String   @id @default(uuid())
   flightId    String   // Chave estrangeira para o Flight
-  flight      Flight   @relation(fields: [flightId], references: [id])
+  flight      Flight   @relation(fields: [flightId], references: [id], onDelete: Cascade)
   
   latitude    Float
   longitude   Float

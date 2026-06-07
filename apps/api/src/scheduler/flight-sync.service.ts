@@ -124,7 +124,7 @@ export class FlightSyncService {
       });
 
       // 4. Executa a regra de alertas (delay, landed, departed)
-      await this.alertsService.processFlightState(flight.id, currentState, previousState);
+      await this.alertsService.processFlightState(flight.id, currentState, previousState, flight);
 
       // 5. Transmite a nova telemetria via WebSocket para os clientes conectados
       const positionData = this.flightsService.mapFlightStateToPosition(currentState, flight);

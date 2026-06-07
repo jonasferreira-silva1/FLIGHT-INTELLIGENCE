@@ -40,6 +40,17 @@ let AlertsController = AlertsController_1 = class AlertsController {
             },
         });
     }
+    async markAllAsRead() {
+        this.logger.log('Marcando todos os alertas como lidos.');
+        const result = await this.prisma.alert.updateMany({
+            where: { read: false },
+            data: { read: true },
+        });
+        return {
+            status: 'ok',
+            message: `${result.count} alertas foram marcados como lidos.`,
+        };
+    }
     async markAsRead(id) {
         this.logger.debug(`Marcando alerta ${id} como lido.`);
         return this.prisma.alert.update({
@@ -64,7 +75,13 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], AlertsController.prototype, "getRecentAlerts", null);
 __decorate([
-    (0, common_1.Put)(':id/read'),
+    (0, common_1.Patch)('read-all'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], AlertsController.prototype, "markAllAsRead", null);
+__decorate([
+    (0, common_1.Patch)(':id/read'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),

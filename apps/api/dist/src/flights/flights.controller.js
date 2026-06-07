@@ -21,6 +21,10 @@ let FlightsController = FlightsController_1 = class FlightsController {
         this.flightsService = flightsService;
         this.logger = new common_1.Logger(FlightsController_1.name);
     }
+    async getFlights() {
+        this.logger.debug('Requisitando todos os voos...');
+        return this.flightsService.getFlights();
+    }
     async getLiveFlights() {
         this.logger.debug('Requisitando lista de voos ativos...');
         return this.flightsService.getLiveFlights();
@@ -39,6 +43,12 @@ let FlightsController = FlightsController_1 = class FlightsController {
     }
 };
 exports.FlightsController = FlightsController;
+__decorate([
+    (0, common_1.Get)(),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], FlightsController.prototype, "getFlights", null);
 __decorate([
     (0, common_1.Get)('live'),
     __metadata("design:type", Function),

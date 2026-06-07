@@ -109,6 +109,18 @@ let FlightsService = class FlightsService {
     constructor(prisma) {
         this.prisma = prisma;
     }
+    async getFlights() {
+        const flights = await this.prisma.flight.findMany({
+            include: {
+                states: {
+                    orderBy: { timestamp: 'desc' },
+                    take: 1,
+                },
+            },
+            orderBy: { updatedAt: 'desc' },
+        });
+        return flights.map(f => this.mapFlightToFrontend(f));
+    }
     async getLiveFlights() {
         const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
         const flights = await this.prisma.flight.findMany({
