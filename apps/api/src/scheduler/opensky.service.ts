@@ -35,7 +35,7 @@ export class OpenskyService {
 
     try {
       const response = await firstValueFrom(this.httpService.get(url, config));
-      return response.data.states || [];
+      return response.data?.states ?? [];
     } catch (error) {
       this.logger.error('Erro ao buscar dados do OpenSky', error.message);
       return [];

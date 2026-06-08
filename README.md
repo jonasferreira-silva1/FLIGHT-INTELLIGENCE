@@ -45,6 +45,10 @@ FLIGHT INTELLIGENCE
 
 [🚀 Demo ao Vivo](https://rec-flight.vercel.app) · [📚 Documentação da API](https://api.rec-flight.com/docs) · [🐛 Reportar Bug](https://github.com/jonasferreira-silva1/rec-flight-intelligence/issues) · [💡 Sugerir Feature](https://github.com/jonasferreira-silva1/rec-flight-intelligence/issues)
 
+<br/>
+
+![REC Flight Intelligence Dashboard](apps/web/public/lealt.png)
+
 </div>
 
 ---

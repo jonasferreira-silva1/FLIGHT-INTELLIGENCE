@@ -74,13 +74,11 @@ export const useFlightStore = create<FlightStore>((set, get) => ({
 
   loadFlights: async () => {
     const data = await api.getFlights();
-    if (data.length > 0) {
-      set({
-        flights: data,
-        dailyStats: deriveDailyStats(data),
-        lastUpdate: new Date().toISOString(),
-      });
-    }
+    set({
+      flights: data,
+      dailyStats: deriveDailyStats(data),
+      lastUpdate: new Date().toISOString(),
+    });
   },
 
   loadPositions: async () => {
