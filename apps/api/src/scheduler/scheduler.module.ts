@@ -10,4 +10,3 @@ import { FlightsModule } from '../flights/flights.module';
   providers: [OpenskyService, FlightSyncService],
 })
 export class SchedulerModule {}
-

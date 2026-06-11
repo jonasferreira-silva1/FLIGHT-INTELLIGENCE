@@ -23,7 +23,6 @@ import { PrismaService } from '../src/prisma/prisma.service';
 
 const prisma = new PrismaService();
 
-
 // ─── Configuração ─────────────────────────────────────────────────────────────
 
 const REC = { lat: -8.1264, lon: -34.9232 };
@@ -46,8 +45,10 @@ function lerp(a: number, b: number, t: number) {
 
 /** Fórmula de Haversine — retorna distância em km */
 function haversineKm(
-  lat1: number, lon1: number,
-  lat2: number, lon2: number,
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number,
 ): number {
   const R = 6371;
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
@@ -115,7 +116,7 @@ async function insertState(params: {
 async function scenarioDelay() {
   const now = new Date();
   const scheduledDep = new Date(now.getTime() - 2 * 60 * 60 * 1000); // -2h
-  const scheduledArr = new Date(now.getTime() + 30 * 60 * 1000);      // +30 min
+  const scheduledArr = new Date(now.getTime() + 30 * 60 * 1000); // +30 min
 
   const flight = await createFlight({
     callsign: 'SEED_DELAY',
@@ -243,7 +244,11 @@ async function scenarioDeparted() {
 
 // ─── Verificação de Alertas ───────────────────────────────────────────────────
 
-async function verifyAlerts(flightId: string, expectedType: string, callsign: string) {
+async function verifyAlerts(
+  flightId: string,
+  expectedType: string,
+  callsign: string,
+) {
   // Aguarda até 2 segundos para o alerta aparecer (o AlertsService processa de forma assíncrona)
   for (let i = 0; i < 20; i++) {
     const alert = await prisma.alert.findFirst({
@@ -277,9 +282,12 @@ async function runAlertProcessing() {
   // Mock simples do gateway para capturar as emissões
   const emittedAlerts: { event: string; payload: any }[] = [];
   const mockGateway = {
-    emitAlert:    (p: any) => emittedAlerts.push({ event: 'flight:alert', payload: p }),
-    emitLanded:   (p: any) => emittedAlerts.push({ event: 'flight:landed', payload: p }),
-    emitDeparted: (p: any) => emittedAlerts.push({ event: 'flight:departed', payload: p }),
+    emitAlert: (p: any) =>
+      emittedAlerts.push({ event: 'flight:alert', payload: p }),
+    emitLanded: (p: any) =>
+      emittedAlerts.push({ event: 'flight:landed', payload: p }),
+    emitDeparted: (p: any) =>
+      emittedAlerts.push({ event: 'flight:departed', payload: p }),
     emitFlightUpdate: () => {},
     server: null,
   } as any;
@@ -294,9 +302,13 @@ async function runAlertProcessing() {
 // ─── Runner Principal ─────────────────────────────────────────────────────────
 
 async function main() {
-  console.log('\n═══════════════════════════════════════════════════════════════');
+  console.log(
+    '\n═══════════════════════════════════════════════════════════════',
+  );
   console.log('  🛫  REC Flight Intelligence — Seed de Alertas (Sprint 5A)');
-  console.log('═══════════════════════════════════════════════════════════════\n');
+  console.log(
+    '═══════════════════════════════════════════════════════════════\n',
+  );
 
   const { alertsService, emittedAlerts } = await runAlertProcessing();
 
@@ -346,18 +358,24 @@ async function main() {
   }
 
   // ── Resumo de Emissões WebSocket (mock) ───────────────────────────────────
-  console.log('\n──────────────────────────────────────────────────────────────');
+  console.log(
+    '\n──────────────────────────────────────────────────────────────',
+  );
   console.log('📡 Eventos WebSocket emitidos (gateway mock):');
   if (emittedAlerts.length === 0) {
     console.log('  (nenhum evento capturado)');
   } else {
     emittedAlerts.forEach((e, i) => {
-      console.log(`  ${i + 1}. [${e.event}] callsign=${e.payload.callsign}, type=${e.payload.type}`);
+      console.log(
+        `  ${i + 1}. [${e.event}] callsign=${e.payload.callsign}, type=${e.payload.type}`,
+      );
     });
   }
 
   // ── Resumo do banco de dados ───────────────────────────────────────────────
-  console.log('\n──────────────────────────────────────────────────────────────');
+  console.log(
+    '\n──────────────────────────────────────────────────────────────',
+  );
   console.log('🗄️  Alertas gravados no banco (todos os cenários de seed):');
   const allAlerts = await prisma.alert.findMany({
     where: {
@@ -374,21 +392,31 @@ async function main() {
   } else {
     allAlerts.forEach((a) => {
       const ts = hhmm(a.timestamp);
-      console.log(`  [${ts}] [${a.type.toUpperCase().padEnd(8)}] ${a.flight.callsign} — ${a.message}`);
+      console.log(
+        `  [${ts}] [${a.type.toUpperCase().padEnd(8)}] ${a.flight.callsign} — ${a.message}`,
+      );
     });
   }
 
   // ── Resultado Final ────────────────────────────────────────────────────────
-  const generated = [delayAlert, landedAlert, departedAlert].filter(Boolean).length;
-  console.log('\n═══════════════════════════════════════════════════════════════');
-  console.log(`  Resultado: ${generated}/3 cenários geraram alertas corretamente.`);
+  const generated = [delayAlert, landedAlert, departedAlert].filter(
+    Boolean,
+  ).length;
+  console.log(
+    '\n═══════════════════════════════════════════════════════════════',
+  );
+  console.log(
+    `  Resultado: ${generated}/3 cenários geraram alertas corretamente.`,
+  );
   if (generated === 3) {
     console.log('  🎉 Sprint 5A — Verificação manual: PASSOU!');
   } else {
     console.log('  ⚠️  Alguns cenários falharam. Verifique os logs acima.');
     process.exitCode = 1;
   }
-  console.log('═══════════════════════════════════════════════════════════════\n');
+  console.log(
+    '═══════════════════════════════════════════════════════════════\n',
+  );
 }
 
 main()

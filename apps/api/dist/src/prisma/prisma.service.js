@@ -17,17 +17,27 @@ const adapter_pg_1 = require("@prisma/adapter-pg");
 let PrismaService = class PrismaService extends client_1.PrismaClient {
     constructor() {
         const url = process.env.DATABASE_URL ?? '';
+        let poolInstance = null;
+        let config = {};
         if (url.startsWith('prisma+postgres://')) {
-            super({ accelerateUrl: url });
+            config = { accelerateUrl: url };
         }
         else {
-            const pool = new pg_1.Pool({ connectionString: url });
-            const adapter = new adapter_pg_1.PrismaPg(pool);
-            super({ adapter });
+            poolInstance = new pg_1.Pool({ connectionString: url });
+            const adapter = new adapter_pg_1.PrismaPg(poolInstance);
+            config = { adapter };
         }
+        super(config);
+        this.pool = poolInstance;
     }
     async onModuleInit() {
         await this.$connect();
+    }
+    async onModuleDestroy() {
+        await this.$disconnect();
+        if (this.pool) {
+            await this.pool.end();
+        }
     }
 };
 exports.PrismaService = PrismaService;

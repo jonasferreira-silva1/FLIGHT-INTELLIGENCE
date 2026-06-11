@@ -25,7 +25,10 @@ function getAirlineInfo(callsign) {
     else if (prefix3 === 'AZU' || prefix2 === 'AD') {
         return { code: 'AD', name: 'Azul Linhas Aéreas' };
     }
-    else if (prefix3 === 'TAM' || prefix3 === 'LAN' || prefix2 === 'LA' || prefix2 === 'JJ') {
+    else if (prefix3 === 'TAM' ||
+        prefix3 === 'LAN' ||
+        prefix2 === 'LA' ||
+        prefix2 === 'JJ') {
         return { code: 'LA', name: 'LATAM Airlines' };
     }
     else if (prefix3 === 'PTB' || prefix2 === '2Z') {
@@ -68,7 +71,10 @@ function getAirportCity(code) {
     return cities[code.toUpperCase()] || 'Outra Cidade';
 }
 function calculateDelayMinutes(state, flight) {
-    if (!state || state.onGround || flight.destination !== 'REC' || !flight.scheduledArr) {
+    if (!state ||
+        state.onGround ||
+        flight.destination !== 'REC' ||
+        !flight.scheduledArr) {
         return 0;
     }
     const recCoords = { lat: -8.1264, lon: -34.9232 };
@@ -119,7 +125,7 @@ let FlightsService = class FlightsService {
             },
             orderBy: { updatedAt: 'desc' },
         });
-        return flights.map(f => this.mapFlightToFrontend(f));
+        return flights.map((f) => this.mapFlightToFrontend(f));
     }
     async getLiveFlights() {
         const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
@@ -142,7 +148,7 @@ let FlightsService = class FlightsService {
                 },
             },
         });
-        return flights.map(f => this.mapFlightToFrontend(f));
+        return flights.map((f) => this.mapFlightToFrontend(f));
     }
     async getLivePositions() {
         const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
@@ -167,8 +173,8 @@ let FlightsService = class FlightsService {
             },
         });
         return flights
-            .filter(f => f.states && f.states.length > 0)
-            .map(f => this.mapFlightStateToPosition(f.states[0], f));
+            .filter((f) => f.states && f.states.length > 0)
+            .map((f) => this.mapFlightStateToPosition(f.states[0], f));
     }
     async getFlightById(id) {
         const flight = await this.prisma.flight.findUnique({
@@ -201,7 +207,7 @@ let FlightsService = class FlightsService {
             },
             take: 200,
         });
-        return states.map(s => this.mapFlightStateToPosition(s, flight));
+        return states.map((s) => this.mapFlightStateToPosition(s, flight));
     }
     mapFlightToFrontend(flight) {
         const latestState = flight.states && flight.states.length > 0 ? flight.states[0] : null;
@@ -217,10 +223,20 @@ let FlightsService = class FlightsService {
             destination: flight.destination || 'Desconhecido',
             destinationCity: getAirportCity(flight.destination || ''),
             status: getFlightStatus(latestState, flight),
-            scheduledDeparture: flight.scheduledDep ? flight.scheduledDep.toISOString() : null,
-            scheduledArrival: flight.scheduledArr ? flight.scheduledArr.toISOString() : null,
-            actualDeparture: latestState && latestState.onGround === false ? flight.scheduledDep?.toISOString() : null,
-            actualArrival: latestState && latestState.onGround === true && flight.destination === 'REC' ? latestState.timestamp.toISOString() : null,
+            scheduledDeparture: flight.scheduledDep
+                ? flight.scheduledDep.toISOString()
+                : null,
+            scheduledArrival: flight.scheduledArr
+                ? flight.scheduledArr.toISOString()
+                : null,
+            actualDeparture: latestState && latestState.onGround === false
+                ? flight.scheduledDep?.toISOString()
+                : null,
+            actualArrival: latestState &&
+                latestState.onGround === true &&
+                flight.destination === 'REC'
+                ? latestState.timestamp.toISOString()
+                : null,
             gate: flight.gate || 'A' + (Math.floor(Math.random() * 15) + 1),
             terminal: flight.terminal || '1',
             aircraft: flight.aircraft || 'Boeing 737-800',

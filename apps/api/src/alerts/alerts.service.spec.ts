@@ -45,13 +45,23 @@ describe('AlertsService', () => {
 
   describe('calculateHaversineDistance', () => {
     it('deve retornar 0 para a mesma coordenada geográfica', () => {
-      const distance = service.calculateHaversineDistance(-8.1264, -34.9232, -8.1264, -34.9232);
+      const distance = service.calculateHaversineDistance(
+        -8.1264,
+        -34.9232,
+        -8.1264,
+        -34.9232,
+      );
       expect(distance).toBeCloseTo(0);
     });
 
     it('deve retornar a distância correta em quilômetros entre Recife e Maceió', () => {
       // Coordenadas aproximadas REC: -8.1264, -34.9232 e MCZ: -9.5108, -35.7917
-      const distance = service.calculateHaversineDistance(-8.1264, -34.9232, -9.5108, -35.7917);
+      const distance = service.calculateHaversineDistance(
+        -8.1264,
+        -34.9232,
+        -9.5108,
+        -35.7917,
+      );
       expect(distance).toBeGreaterThan(170); // Aproximadamente 178 km
       expect(distance).toBeLessThan(190);
     });
@@ -81,7 +91,10 @@ describe('AlertsService', () => {
 
     it('deve gerar alerta de Pouso (Landed) quando o voo com destino REC mudar onGround de false para true', async () => {
       mockPrismaService.flight.findUnique.mockResolvedValue(mockFlightData);
-      mockPrismaService.alert.create.mockResolvedValue({ id: 'alert-uuid-landed', timestamp: new Date() });
+      mockPrismaService.alert.create.mockResolvedValue({
+        id: 'alert-uuid-landed',
+        timestamp: new Date(),
+      });
 
       const currentState = {
         latitude: -8.1264,
@@ -91,13 +104,17 @@ describe('AlertsService', () => {
       };
 
       const previousState = {
-        latitude: -8.1100,
-        longitude: -34.9100,
+        latitude: -8.11,
+        longitude: -34.91,
         onGround: false,
         timestamp: new Date(Date.now() - 30000),
       };
 
-      await service.processFlightState(mockFlightData.id, currentState, previousState);
+      await service.processFlightState(
+        mockFlightData.id,
+        currentState,
+        previousState,
+      );
 
       expect(prisma.alert.create).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -111,13 +128,20 @@ describe('AlertsService', () => {
     });
 
     it('deve gerar alerta de Decolagem (Departed) quando o voo partindo do REC mudar onGround de true para false', async () => {
-      const departingFlight = { ...mockFlightData, origin: 'REC', destination: 'GRU' };
+      const departingFlight = {
+        ...mockFlightData,
+        origin: 'REC',
+        destination: 'GRU',
+      };
       mockPrismaService.flight.findUnique.mockResolvedValue(departingFlight);
-      mockPrismaService.alert.create.mockResolvedValue({ id: 'alert-uuid-departed', timestamp: new Date() });
+      mockPrismaService.alert.create.mockResolvedValue({
+        id: 'alert-uuid-departed',
+        timestamp: new Date(),
+      });
 
       const currentState = {
-        latitude: -8.1100,
-        longitude: -34.9100,
+        latitude: -8.11,
+        longitude: -34.91,
         onGround: false,
         timestamp: new Date(),
       };
@@ -129,7 +153,11 @@ describe('AlertsService', () => {
         timestamp: new Date(Date.now() - 30000),
       };
 
-      await service.processFlightState(mockFlightData.id, currentState, previousState);
+      await service.processFlightState(
+        mockFlightData.id,
+        currentState,
+        previousState,
+      );
 
       expect(prisma.alert.create).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -145,16 +173,19 @@ describe('AlertsService', () => {
     it('deve gerar alerta de atraso (Delay) se o ETA estimado atrasar mais de 15 minutos em relação ao scheduledArr', async () => {
       mockPrismaService.flight.findUnique.mockResolvedValue(mockFlightData);
       mockPrismaService.alert.findFirst.mockResolvedValue(null); // Nenhum alerta de atraso anterior
-      mockPrismaService.alert.create.mockResolvedValue({ id: 'alert-uuid-delay', timestamp: new Date() });
+      mockPrismaService.alert.create.mockResolvedValue({
+        id: 'alert-uuid-delay',
+        timestamp: new Date(),
+      });
 
       // Avião voando longe de Recife (ex: a 500 km de distância de Recife)
       // Com velocidade de 200 m/s, vai demorar 2500 segundos (~41 minutos) para chegar.
       // Definimos o timestamp atual igual ao horário programado de chegada de modo que a chegada com mais 41 minutos de voo represente atraso imediato.
       const testTimestamp = new Date(mockFlightData.scheduledArr.getTime());
-      
+
       const currentState = {
-        latitude: -12.6300, // Coordenadas distantes de Recife
-        longitude: -38.5700,
+        latitude: -12.63, // Coordenadas distantes de Recife
+        longitude: -38.57,
         velocity: 200,
         onGround: false,
         timestamp: testTimestamp,

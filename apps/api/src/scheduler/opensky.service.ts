@@ -5,7 +5,7 @@ import { firstValueFrom } from 'rxjs';
 @Injectable()
 export class OpenskyService {
   private readonly logger = new Logger(OpenskyService.name);
-  
+
   // URL base para OpenSky
   private readonly baseUrl = 'https://opensky-network.org/api/states/all';
 

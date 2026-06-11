@@ -3,12 +3,15 @@ import { PrismaService } from '../prisma/prisma.service';
 import { FlightsGateway } from '../flights/flights.gateway';
 
 // Coordenadas geográficas dos principais aeroportos brasileiros para cálculo do ETA
-export const AIRPORT_COORDINATES: Record<string, { lat: number; lon: number; city: string }> = {
+export const AIRPORT_COORDINATES: Record<
+  string,
+  { lat: number; lon: number; city: string }
+> = {
   REC: { lat: -8.1264, lon: -34.9232, city: 'Recife' },
   GRU: { lat: -23.4356, lon: -46.4731, city: 'São Paulo (Guarulhos)' },
   CGH: { lat: -23.6261, lon: -46.6564, city: 'São Paulo (Congonhas)' },
-  GIG: { lat: -22.8100, lon: -43.2506, city: 'Rio de Janeiro (Galeão)' },
-  SDU: { lat: -22.9100, lon: -43.1625, city: 'Rio de Janeiro (Santos Dumont)' },
+  GIG: { lat: -22.81, lon: -43.2506, city: 'Rio de Janeiro (Galeão)' },
+  SDU: { lat: -22.91, lon: -43.1625, city: 'Rio de Janeiro (Santos Dumont)' },
   BSB: { lat: -15.8697, lon: -47.9172, city: 'Brasília' },
   CNF: { lat: -19.6244, lon: -43.9719, city: 'Belo Horizonte (Confins)' },
   SSA: { lat: -12.9086, lon: -38.3225, city: 'Salvador' },
@@ -34,18 +37,23 @@ export class AlertsService {
    * Calcula a distância geodésica entre duas coordenadas usando a fórmula de Haversine.
    * Retorna a distância em quilômetros.
    */
-  calculateHaversineDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  calculateHaversineDistance(
+    lat1: number,
+    lon1: number,
+    lat2: number,
+    lon2: number,
+  ): number {
     const R = 6371; // Raio da Terra em km
     const dLat = (lat2 - lat1) * (Math.PI / 180);
     const dLon = (lon2 - lon1) * (Math.PI / 180);
-    
+
     const a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
       Math.cos(lat1 * (Math.PI / 180)) *
         Math.cos(lat2 * (Math.PI / 180)) *
         Math.sin(dLon / 2) *
         Math.sin(dLon / 2);
-        
+
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
   }
@@ -71,16 +79,19 @@ export class AlertsService {
     flightEntity?: any, // Voo pré-carregado para evitar query N+1 (opcional)
   ) {
     // 1. Busca os metadados planejados do voo (ou usa o objeto pré-carregado)
-    const flight = flightEntity || await this.prisma.flight.findUnique({
-      where: { id: flightId },
-    });
+    const flight =
+      flightEntity ||
+      (await this.prisma.flight.findUnique({
+        where: { id: flightId },
+      }));
 
     if (!flight) {
       this.logger.warn(`Voo com ID ${flightId} não foi encontrado no banco.`);
       return;
     }
 
-    const { callsign, origin, destination, scheduledArr, scheduledDep } = flight;
+    const { callsign, origin, destination, scheduledArr, scheduledDep } =
+      flight;
 
     // Formata a hora para representação visual simples (HH:MM)
     const formatHHMM = (date: Date): string => {
@@ -99,7 +110,7 @@ export class AlertsService {
 
     if (hasDeparted) {
       const message = `Voo ${callsign} decolou do Recife (REC) às ${formatHHMM(currentState.timestamp)}.`;
-      
+
       const alert = await this.prisma.alert.create({
         data: {
           flightId,
@@ -110,7 +121,7 @@ export class AlertsService {
       });
 
       this.logger.log(`Alerta de Decolagem gerado para o voo ${callsign}`);
-      
+
       // Notifica via WebSocket
       this.gateway.emitDeparted({
         id: alert.id,
@@ -134,7 +145,7 @@ export class AlertsService {
 
     if (hasLanded) {
       const message = `Voo ${callsign} pousou com sucesso no Recife (REC) às ${formatHHMM(currentState.timestamp)}.`;
-      
+
       const alert = await this.prisma.alert.create({
         data: {
           flightId,
@@ -145,7 +156,7 @@ export class AlertsService {
       });
 
       this.logger.log(`Alerta de Pouso gerado para o voo ${callsign}`);
-      
+
       // Notifica via WebSocket
       this.gateway.emitLanded({
         id: alert.id,
@@ -164,7 +175,7 @@ export class AlertsService {
     if (!currentState.onGround && destination === 'REC' && scheduledArr) {
       // Coordenadas de Recife
       const recCoords = AIRPORT_COORDINATES.REC;
-      
+
       // Calcula a distância atual até Recife
       const distance = this.calculateHaversineDistance(
         currentState.latitude,
@@ -174,11 +185,16 @@ export class AlertsService {
       );
 
       // Estima o tempo restante
-      const timeToTargetSeconds = this.estimateTimeToTarget(distance, currentState.velocity);
-      
+      const timeToTargetSeconds = this.estimateTimeToTarget(
+        distance,
+        currentState.velocity,
+      );
+
       // Calcula o ETA (Estimated Time of Arrival)
-      const eta = new Date(currentState.timestamp.getTime() + timeToTargetSeconds * 1000);
-      
+      const eta = new Date(
+        currentState.timestamp.getTime() + timeToTargetSeconds * 1000,
+      );
+
       // Compara o ETA com o horário de chegada programado
       const delayMs = eta.getTime() - scheduledArr.getTime();
       const delayMinutes = Math.floor(delayMs / 60000);
@@ -197,16 +213,22 @@ export class AlertsService {
         });
 
         let generateNewAlert = false;
-        
+
         if (!latestDelayAlert) {
           // Nenhum alerta anterior de atraso, cria o primeiro
           generateNewAlert = true;
         } else {
           // Se já existe um alerta de atraso, só cria outro se o atraso estimado variou significativamente (ex: mais de 5 minutos)
           // ou se o alerta anterior foi há mais de 10 minutos
-          const timeSinceLastAlertMs = currentState.timestamp.getTime() - latestDelayAlert.timestamp.getTime();
-          const parsedMessage = latestDelayAlert.message.match(/atraso previsto de (\d+) minutos/);
-          const previousDelayMinutes = parsedMessage ? parseInt(parsedMessage[1], 10) : 0;
+          const timeSinceLastAlertMs =
+            currentState.timestamp.getTime() -
+            latestDelayAlert.timestamp.getTime();
+          const parsedMessage = latestDelayAlert.message.match(
+            /atraso previsto de (\d+) minutos/,
+          );
+          const previousDelayMinutes = parsedMessage
+            ? parseInt(parsedMessage[1], 10)
+            : 0;
           const delayDifference = Math.abs(delayMinutes - previousDelayMinutes);
 
           if (delayDifference >= 5 || timeSinceLastAlertMs > 10 * 60 * 1000) {
@@ -216,7 +238,7 @@ export class AlertsService {
 
         if (generateNewAlert) {
           const message = `Voo ${callsign} com atraso previsto de ${delayMinutes} minutos. Nova previsão de chegada: ${formatHHMM(eta)}.`;
-          
+
           const alert = await this.prisma.alert.create({
             data: {
               flightId,
@@ -226,7 +248,9 @@ export class AlertsService {
             },
           });
 
-          this.logger.log(`Alerta de Atraso de ${delayMinutes} min gerado para o voo ${callsign}`);
+          this.logger.log(
+            `Alerta de Atraso de ${delayMinutes} min gerado para o voo ${callsign}`,
+          );
 
           // Emite o alerta via gateway
           this.gateway.emitAlert({

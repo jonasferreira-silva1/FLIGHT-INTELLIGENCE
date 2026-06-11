@@ -8,7 +8,12 @@ describe('AppController (e2e)', () => {
   let app: INestApplication;
 
   const mockPrismaService = {
-    flight: { findMany: jest.fn(), findUnique: jest.fn(), create: jest.fn(), update: jest.fn() },
+    flight: {
+      findMany: jest.fn(),
+      findUnique: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+    },
     flightState: { findMany: jest.fn(), create: jest.fn() },
     alert: { findMany: jest.fn(), create: jest.fn(), findFirst: jest.fn() },
   };
@@ -39,4 +44,3 @@ describe('AppController (e2e)', () => {
       });
   });
 });
-

@@ -16,10 +16,8 @@ import { AnalyticsModule } from './analytics/analytics.module';
     SchedulerModule,
     AlertsModule,
     AnalyticsModule,
-  ], 
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}
-
-

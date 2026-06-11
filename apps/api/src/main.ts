@@ -5,10 +5,10 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   // Cria uma instância da aplicação baseada no módulo principal (AppModule)
   const app = await NestFactory.create(AppModule);
-  
+
   // Habilita CORS para permitir conexões do frontend
   app.enableCors();
-  
+
   // A API vai escutar na porta 3001, conforme definimos no docker-compose e variáveis de ambiente
   // Isso evita conflito com o frontend (Next.js) que roda na porta 3000
   await app.listen(process.env.PORT || 3001);

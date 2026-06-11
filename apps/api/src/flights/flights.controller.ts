@@ -36,7 +36,9 @@ export class FlightsController {
    */
   @Get('positions')
   async getLivePositions() {
-    this.logger.debug('Requisitando posições geográficas de voos em tempo real...');
+    this.logger.debug(
+      'Requisitando posições geográficas de voos em tempo real...',
+    );
     return this.flightsService.getLivePositions();
   }
 

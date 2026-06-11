@@ -1,7 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { getAirlineInfo, calculateDelayMinutes, getFlightStatus } from '../flights/flights.service';
+import {
+  getAirlineInfo,
+  calculateDelayMinutes,
+  getFlightStatus,
+} from '../flights/flights.service';
 
 @Injectable()
 export class AnalyticsService {
@@ -22,7 +26,7 @@ export class AnalyticsService {
       },
     });
 
-    const arrivals  = flights.filter((f: any) => f.destination === 'REC').length;
+    const arrivals = flights.filter((f: any) => f.destination === 'REC').length;
     const departures = flights.filter((f: any) => f.origin === 'REC').length;
 
     const delayList = flights.map((f: any) => {
@@ -31,8 +35,9 @@ export class AnalyticsService {
     });
 
     const delayed = delayList.filter((d: number) => d > 0);
-    const onTime  = flights.length - delayed.length;
-    const onTimePercentage = flights.length > 0 ? (onTime / flights.length) * 100 : 0;
+    const onTime = flights.length - delayed.length;
+    const onTimePercentage =
+      flights.length > 0 ? (onTime / flights.length) * 100 : 0;
     const averageDelay =
       delayed.length > 0
         ? delayed.reduce((s: number, d: number) => s + d, 0) / delayed.length
@@ -63,10 +68,13 @@ export class AnalyticsService {
       },
     });
 
-    const airlineMap = new Map<string, { code: string; name: string; total: number; onTime: number }>();
+    const airlineMap = new Map<
+      string,
+      { code: string; name: string; total: number; onTime: number }
+    >();
 
     for (const flight of flights) {
-      const info  = getAirlineInfo(flight.callsign);
+      const info = getAirlineInfo(flight.callsign);
       const state = flight.states[0] ?? null;
       const delay = calculateDelayMinutes(state, flight);
 
@@ -86,7 +94,8 @@ export class AnalyticsService {
         code: a.code,
         name: a.name,
         flights: a.total,
-        onTimePercentage: a.total > 0 ? Math.round((a.onTime / a.total) * 1000) / 10 : 0,
+        onTimePercentage:
+          a.total > 0 ? Math.round((a.onTime / a.total) * 1000) / 10 : 0,
       }))
       .sort((a, b) => b.flights - a.flights);
   }
@@ -100,9 +109,9 @@ export class AnalyticsService {
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
     const flights: any[] = await this.prisma.flight.findMany({
-      where: { 
+      where: {
         scheduledDep: { not: null },
-        createdAt: { gte: thirtyDaysAgo }
+        createdAt: { gte: thirtyDaysAgo },
       },
       include: {
         states: { orderBy: { timestamp: 'desc' }, take: 1 },
@@ -115,7 +124,7 @@ export class AnalyticsService {
       if (!flight.scheduledDep) continue;
       const state = flight.states[0] ?? null;
       const delay = calculateDelayMinutes(state, flight);
-      const hour  = new Date(flight.scheduledDep).getHours();
+      const hour = new Date(flight.scheduledDep).getHours();
 
       const entry = hourMap.get(hour) ?? { totalDelay: 0, count: 0 };
       entry.totalDelay += delay;

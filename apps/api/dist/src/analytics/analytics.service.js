@@ -87,7 +87,7 @@ let AnalyticsService = class AnalyticsService {
         const flights = await this.prisma.flight.findMany({
             where: {
                 scheduledDep: { not: null },
-                createdAt: { gte: thirtyDaysAgo }
+                createdAt: { gte: thirtyDaysAgo },
             },
             include: {
                 states: { orderBy: { timestamp: 'desc' }, take: 1 },

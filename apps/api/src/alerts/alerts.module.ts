@@ -9,8 +9,8 @@ import { PrismaModule } from '../prisma/prisma.module';
  */
 @Module({
   imports: [
-    PrismaModule,     // Banco de dados (Prisma client)
-    FlightsModule,    // Acesso ao gateway WebSocket e service de voos
+    PrismaModule, // Banco de dados (Prisma client)
+    FlightsModule, // Acesso ao gateway WebSocket e service de voos
   ],
   controllers: [AlertsController],
   providers: [AlertsService],

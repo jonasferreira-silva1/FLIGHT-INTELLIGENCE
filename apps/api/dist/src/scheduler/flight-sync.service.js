@@ -52,7 +52,7 @@ let FlightSyncService = FlightSyncService_1 = class FlightSyncService {
             let flight;
             if (!existingFlight) {
                 const isArrival = Math.random() > 0.5;
-                const otherAirports = Object.keys(alerts_service_1.AIRPORT_COORDINATES).filter(code => code !== 'REC');
+                const otherAirports = Object.keys(alerts_service_1.AIRPORT_COORDINATES).filter((code) => code !== 'REC');
                 const randomAirport = otherAirports[Math.floor(Math.random() * otherAirports.length)];
                 const origin = isArrival ? randomAirport : 'REC';
                 const destination = isArrival ? 'REC' : randomAirport;

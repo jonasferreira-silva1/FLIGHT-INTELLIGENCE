@@ -19,7 +19,9 @@ import { Logger } from '@nestjs/common';
     origin: '*', // Habilita CORS para permitir conexões de qualquer origem no desenvolvimento
   },
 })
-export class FlightsGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class FlightsGateway
+  implements OnGatewayConnection, OnGatewayDisconnect
+{
   private readonly logger = new Logger(FlightsGateway.name);
 
   // Instância do servidor Socket.io injetada automaticamente pelo NestJS
@@ -50,8 +52,13 @@ export class FlightsGateway implements OnGatewayConnection, OnGatewayDisconnect 
   ) {
     if (data && data.room) {
       client.join(data.room);
-      this.logger.debug(`Cliente ${client.id} se inscreveu na sala: ${data.room}`);
-      return { status: 'ok', message: `Inscrito com sucesso na sala: ${data.room}` };
+      this.logger.debug(
+        `Cliente ${client.id} se inscreveu na sala: ${data.room}`,
+      );
+      return {
+        status: 'ok',
+        message: `Inscrito com sucesso na sala: ${data.room}`,
+      };
     }
     return { status: 'error', message: 'Nome da sala inválido' };
   }
@@ -67,7 +74,10 @@ export class FlightsGateway implements OnGatewayConnection, OnGatewayDisconnect 
     if (data && data.room) {
       client.leave(data.room);
       this.logger.debug(`Cliente ${client.id} saiu da sala: ${data.room}`);
-      return { status: 'ok', message: `Saiu com sucesso da sala: ${data.room}` };
+      return {
+        status: 'ok',
+        message: `Saiu com sucesso da sala: ${data.room}`,
+      };
     }
     return { status: 'error', message: 'Nome da sala inválido' };
   }
@@ -83,10 +93,12 @@ export class FlightsGateway implements OnGatewayConnection, OnGatewayDisconnect 
     }
     // Emite para a sala de monitoramento em tempo real do Recife
     this.server.to('rec:live').emit('flight:update', flightData);
-    
+
     // Emite para a sala específica do voo (caso o cliente queira acompanhar apenas um voo)
     if (flightData.callsign) {
-      this.server.to(`flight:${flightData.callsign}`).emit('flight:update', flightData);
+      this.server
+        .to(`flight:${flightData.callsign}`)
+        .emit('flight:update', flightData);
     }
   }
 
@@ -97,7 +109,9 @@ export class FlightsGateway implements OnGatewayConnection, OnGatewayDisconnect 
     if (!this.server) return;
     this.server.to('rec:live').emit('flight:alert', alertData);
     if (alertData.callsign) {
-      this.server.to(`flight:${alertData.callsign}`).emit('flight:alert', alertData);
+      this.server
+        .to(`flight:${alertData.callsign}`)
+        .emit('flight:alert', alertData);
     }
   }
 
@@ -108,7 +122,9 @@ export class FlightsGateway implements OnGatewayConnection, OnGatewayDisconnect 
     if (!this.server) return;
     this.server.to('rec:live').emit('flight:landed', landedData);
     if (landedData.callsign) {
-      this.server.to(`flight:${landedData.callsign}`).emit('flight:landed', landedData);
+      this.server
+        .to(`flight:${landedData.callsign}`)
+        .emit('flight:landed', landedData);
     }
   }
 
@@ -119,7 +135,9 @@ export class FlightsGateway implements OnGatewayConnection, OnGatewayDisconnect 
     if (!this.server) return;
     this.server.to('rec:live').emit('flight:departed', departedData);
     if (departedData.callsign) {
-      this.server.to(`flight:${departedData.callsign}`).emit('flight:departed', departedData);
+      this.server
+        .to(`flight:${departedData.callsign}`)
+        .emit('flight:departed', departedData);
     }
   }
 }

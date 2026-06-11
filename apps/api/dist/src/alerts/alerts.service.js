@@ -18,8 +18,8 @@ exports.AIRPORT_COORDINATES = {
     REC: { lat: -8.1264, lon: -34.9232, city: 'Recife' },
     GRU: { lat: -23.4356, lon: -46.4731, city: 'São Paulo (Guarulhos)' },
     CGH: { lat: -23.6261, lon: -46.6564, city: 'São Paulo (Congonhas)' },
-    GIG: { lat: -22.8100, lon: -43.2506, city: 'Rio de Janeiro (Galeão)' },
-    SDU: { lat: -22.9100, lon: -43.1625, city: 'Rio de Janeiro (Santos Dumont)' },
+    GIG: { lat: -22.81, lon: -43.2506, city: 'Rio de Janeiro (Galeão)' },
+    SDU: { lat: -22.91, lon: -43.1625, city: 'Rio de Janeiro (Santos Dumont)' },
     BSB: { lat: -15.8697, lon: -47.9172, city: 'Brasília' },
     CNF: { lat: -19.6244, lon: -43.9719, city: 'Belo Horizonte (Confins)' },
     SSA: { lat: -12.9086, lon: -38.3225, city: 'Salvador' },
@@ -55,9 +55,10 @@ let AlertsService = AlertsService_1 = class AlertsService {
         return distanceMeters / speed;
     }
     async processFlightState(flightId, currentState, previousState, flightEntity) {
-        const flight = flightEntity || await this.prisma.flight.findUnique({
-            where: { id: flightId },
-        });
+        const flight = flightEntity ||
+            (await this.prisma.flight.findUnique({
+                where: { id: flightId },
+            }));
         if (!flight) {
             this.logger.warn(`Voo com ID ${flightId} não foi encontrado no banco.`);
             return;
@@ -142,9 +143,12 @@ let AlertsService = AlertsService_1 = class AlertsService {
                     generateNewAlert = true;
                 }
                 else {
-                    const timeSinceLastAlertMs = currentState.timestamp.getTime() - latestDelayAlert.timestamp.getTime();
+                    const timeSinceLastAlertMs = currentState.timestamp.getTime() -
+                        latestDelayAlert.timestamp.getTime();
                     const parsedMessage = latestDelayAlert.message.match(/atraso previsto de (\d+) minutos/);
-                    const previousDelayMinutes = parsedMessage ? parseInt(parsedMessage[1], 10) : 0;
+                    const previousDelayMinutes = parsedMessage
+                        ? parseInt(parsedMessage[1], 10)
+                        : 0;
                     const delayDifference = Math.abs(delayMinutes - previousDelayMinutes);
                     if (delayDifference >= 5 || timeSinceLastAlertMs > 10 * 60 * 1000) {
                         generateNewAlert = true;

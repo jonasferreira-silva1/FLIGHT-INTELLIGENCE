@@ -35,7 +35,7 @@ let OpenskyService = OpenskyService_1 = class OpenskyService {
         }
         try {
             const response = await (0, rxjs_1.firstValueFrom)(this.httpService.get(url, config));
-            return response.data.states || [];
+            return response.data?.states ?? [];
         }
         catch (error) {
             this.logger.error('Erro ao buscar dados do OpenSky', error.message);

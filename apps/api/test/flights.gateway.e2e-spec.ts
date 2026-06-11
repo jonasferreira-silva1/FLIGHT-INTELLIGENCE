@@ -26,7 +26,9 @@ function waitForEvent<T = any>(
 ): Promise<T> {
   return new Promise((resolve, reject) => {
     const timer = setTimeout(() => {
-      reject(new Error(`Timeout aguardando evento '${event}' por ${timeoutMs}ms`));
+      reject(
+        new Error(`Timeout aguardando evento '${event}' por ${timeoutMs}ms`),
+      );
     }, timeoutMs);
 
     socket.once(event, (data: T) => {
@@ -193,9 +195,9 @@ describe('FlightsGateway (E2E WebSocket)', () => {
       gateway.emitFlightUpdate(mockFlightPayload);
 
       // Aguarda 500ms e verifica que nenhum evento chegou
-      await expect(
-        waitForEvent(clientB, 'flight:update', 500),
-      ).rejects.toThrow('Timeout');
+      await expect(waitForEvent(clientB, 'flight:update', 500)).rejects.toThrow(
+        'Timeout',
+      );
     });
 
     it('deve entregar o evento apenas para o cliente inscrito e não para outros', async () => {
@@ -240,11 +242,15 @@ describe('FlightsGateway (E2E WebSocket)', () => {
       );
 
       // Emite evento de outro voo
-      gateway.emitFlightUpdate({ callsign: 'GLO5555', latitude: -12.0, longitude: -38.0 });
+      gateway.emitFlightUpdate({
+        callsign: 'GLO5555',
+        latitude: -12.0,
+        longitude: -38.0,
+      });
 
-      await expect(
-        waitForEvent(clientA, 'flight:update', 400),
-      ).rejects.toThrow('Timeout');
+      await expect(waitForEvent(clientA, 'flight:update', 400)).rejects.toThrow(
+        'Timeout',
+      );
     });
   });
 
@@ -373,11 +379,20 @@ describe('FlightsGateway (E2E WebSocket)', () => {
     it('deve entregar flight:update para todos os clientes inscritos em rec:live', async () => {
       // Ambos se inscrevem
       await Promise.all([
-        new Promise<void>((res) => clientA.emit('join:room', { room: 'rec:live' }, () => res())),
-        new Promise<void>((res) => clientB.emit('join:room', { room: 'rec:live' }, () => res())),
+        new Promise<void>((res) =>
+          clientA.emit('join:room', { room: 'rec:live' }, () => res()),
+        ),
+        new Promise<void>((res) =>
+          clientB.emit('join:room', { room: 'rec:live' }, () => res()),
+        ),
       ]);
 
-      const payload = { callsign: 'VPB7890', latitude: -9.0, longitude: -35.5, onGround: false };
+      const payload = {
+        callsign: 'VPB7890',
+        latitude: -9.0,
+        longitude: -35.5,
+        onGround: false,
+      };
 
       const [eventA, eventB] = await Promise.all([
         waitForEvent(clientA, 'flight:update'),

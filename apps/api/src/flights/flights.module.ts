@@ -9,4 +9,3 @@ import { FlightsGateway } from './flights.gateway';
   exports: [FlightsService, FlightsGateway],
 })
 export class FlightsModule {}
-

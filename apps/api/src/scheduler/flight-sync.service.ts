@@ -24,9 +24,11 @@ export class FlightSyncService {
     this.logger.debug('Iniciando sincronização de voos da OpenSky...');
 
     const states = await this.openskyService.getFlightsInRecife();
-    
+
     if (!states || states.length === 0) {
-      this.logger.debug('Nenhum voo retornado pela OpenSky na janela de tempo.');
+      this.logger.debug(
+        'Nenhum voo retornado pela OpenSky na janela de tempo.',
+      );
       return;
     }
 
@@ -63,20 +65,23 @@ export class FlightSyncService {
       if (!existingFlight) {
         // Determina se o voo está chegando ou partindo de Recife (REC)
         const isArrival = Math.random() > 0.5;
-        
+
         // Sorteia outro aeroporto brasileiro como par de rota
-        const otherAirports = Object.keys(AIRPORT_COORDINATES).filter(code => code !== 'REC');
-        const randomAirport = otherAirports[Math.floor(Math.random() * otherAirports.length)];
-        
+        const otherAirports = Object.keys(AIRPORT_COORDINATES).filter(
+          (code) => code !== 'REC',
+        );
+        const randomAirport =
+          otherAirports[Math.floor(Math.random() * otherAirports.length)];
+
         const origin = isArrival ? randomAirport : 'REC';
         const destination = isArrival ? 'REC' : randomAirport;
         const airlineInfo = getAirlineInfo(callsign);
-        
+
         // Define horários estimados baseados no horário atual do processamento
         const now = new Date();
         let scheduledDep: Date;
         let scheduledArr: Date;
-        
+
         if (isArrival) {
           scheduledDep = new Date(now.getTime() - 60 * 60 * 1000); // Decolou há 1 hora
           scheduledArr = new Date(now.getTime() + 60 * 60 * 1000); // Chega em 1 hora
@@ -84,7 +89,7 @@ export class FlightSyncService {
           scheduledDep = new Date(now.getTime() - 15 * 60 * 1000); // Decolou há 15 minutos
           scheduledArr = new Date(now.getTime() + 90 * 60 * 1000); // Chega em 1.5 horas
         }
-        
+
         flight = await this.prisma.flight.create({
           data: {
             callsign,
@@ -95,7 +100,9 @@ export class FlightSyncService {
             scheduledArr,
           },
         });
-        this.logger.debug(`Novo voo cadastrado e enriquecido: ${callsign} (${origin} -> ${destination})`);
+        this.logger.debug(
+          `Novo voo cadastrado e enriquecido: ${callsign} (${origin} -> ${destination})`,
+        );
       } else {
         // Se o voo já existe, apenas atualiza o timestamp de última modificação
         flight = await this.prisma.flight.update({
@@ -124,15 +131,25 @@ export class FlightSyncService {
       });
 
       // 4. Executa a regra de alertas (delay, landed, departed)
-      await this.alertsService.processFlightState(flight.id, currentState, previousState, flight);
+      await this.alertsService.processFlightState(
+        flight.id,
+        currentState,
+        previousState,
+        flight,
+      );
 
       // 5. Transmite a nova telemetria via WebSocket para os clientes conectados
-      const positionData = this.flightsService.mapFlightStateToPosition(currentState, flight);
+      const positionData = this.flightsService.mapFlightStateToPosition(
+        currentState,
+        flight,
+      );
       this.gateway.emitFlightUpdate(positionData);
 
       updatedCount++;
     }
 
-    this.logger.log(`Sincronização concluída. ${updatedCount} posições processadas e transmitidas via WS.`);
+    this.logger.log(
+      `Sincronização concluída. ${updatedCount} posições processadas e transmitidas via WS.`,
+    );
   }
 }
