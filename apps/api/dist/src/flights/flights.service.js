@@ -8,6 +8,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FlightsService = void 0;
 exports.getAirlineInfo = getAirlineInfo;
@@ -15,6 +18,7 @@ exports.getAirportCity = getAirportCity;
 exports.calculateDelayMinutes = calculateDelayMinutes;
 exports.getFlightStatus = getFlightStatus;
 const common_1 = require("@nestjs/common");
+const cache_manager_1 = require("@nestjs/cache-manager");
 const prisma_service_1 = require("../prisma/prisma.service");
 function getAirlineInfo(callsign) {
     const prefix3 = callsign.substring(0, 3).toUpperCase();
@@ -112,8 +116,9 @@ function getFlightStatus(state, flight) {
     return 'airborne';
 }
 let FlightsService = class FlightsService {
-    constructor(prisma) {
+    constructor(prisma, cacheManager) {
         this.prisma = prisma;
+        this.cacheManager = cacheManager;
     }
     async getFlights() {
         const flights = await this.prisma.flight.findMany({
@@ -128,6 +133,11 @@ let FlightsService = class FlightsService {
         return flights.map((f) => this.mapFlightToFrontend(f));
     }
     async getLiveFlights() {
+        const cacheKey = 'live_flights';
+        const cached = await this.cacheManager.get(cacheKey);
+        if (cached) {
+            return cached;
+        }
         const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
         const flights = await this.prisma.flight.findMany({
             where: {
@@ -148,9 +158,16 @@ let FlightsService = class FlightsService {
                 },
             },
         });
-        return flights.map((f) => this.mapFlightToFrontend(f));
+        const result = flights.map((f) => this.mapFlightToFrontend(f));
+        await this.cacheManager.set(cacheKey, result, 60000);
+        return result;
     }
     async getLivePositions() {
+        const cacheKey = 'live_positions';
+        const cached = await this.cacheManager.get(cacheKey);
+        if (cached) {
+            return cached;
+        }
         const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
         const flights = await this.prisma.flight.findMany({
             where: {
@@ -172,9 +189,11 @@ let FlightsService = class FlightsService {
                 },
             },
         });
-        return flights
+        const result = flights
             .filter((f) => f.states && f.states.length > 0)
             .map((f) => this.mapFlightStateToPosition(f.states[0], f));
+        await this.cacheManager.set(cacheKey, result, 60000);
+        return result;
     }
     async getFlightById(id) {
         const flight = await this.prisma.flight.findUnique({
@@ -265,6 +284,7 @@ let FlightsService = class FlightsService {
 exports.FlightsService = FlightsService;
 exports.FlightsService = FlightsService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __param(1, (0, common_1.Inject)(cache_manager_1.CACHE_MANAGER)),
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService, Object])
 ], FlightsService);
 //# sourceMappingURL=flights.service.js.map

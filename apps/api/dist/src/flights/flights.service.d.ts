@@ -1,3 +1,4 @@
+import { Cache } from 'cache-manager';
 import { PrismaService } from '../prisma/prisma.service';
 export declare function getAirlineInfo(callsign: string): {
     code: string;
@@ -8,7 +9,8 @@ export declare function calculateDelayMinutes(state: any, flight: any): number;
 export declare function getFlightStatus(state: any, flight: any): string;
 export declare class FlightsService {
     private readonly prisma;
-    constructor(prisma: PrismaService);
+    private readonly cacheManager;
+    constructor(prisma: PrismaService, cacheManager: Cache);
     getFlights(): Promise<{
         id: any;
         callsign: any;
@@ -29,41 +31,8 @@ export declare class FlightsService {
         aircraft: any;
         delayMinutes: number;
     }[]>;
-    getLiveFlights(): Promise<{
-        id: any;
-        callsign: any;
-        icao24: any;
-        airline: any;
-        airlineCode: string;
-        origin: any;
-        originCity: string;
-        destination: any;
-        destinationCity: string;
-        status: string;
-        scheduledDeparture: any;
-        scheduledArrival: any;
-        actualDeparture: any;
-        actualArrival: any;
-        gate: any;
-        terminal: any;
-        aircraft: any;
-        delayMinutes: number;
-    }[]>;
-    getLivePositions(): Promise<{
-        flightId: any;
-        callsign: any;
-        airline: any;
-        latitude: any;
-        longitude: any;
-        altitude: any;
-        velocity: any;
-        heading: any;
-        onGround: any;
-        status: string;
-        origin: any;
-        destination: any;
-        capturedAt: any;
-    }[]>;
+    getLiveFlights(): Promise<any[]>;
+    getLivePositions(): Promise<any[]>;
     getFlightById(id: string): Promise<{
         id: any;
         callsign: any;

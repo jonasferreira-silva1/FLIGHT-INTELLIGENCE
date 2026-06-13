@@ -25,11 +25,20 @@ services:
     environment:
       - NODE_ENV=production
       - DATABASE_URL=postgresql://rec:rec@db:5432/rec_flight?schema=public
+      - REDIS_URL=redis://cache:6379
       - PORT=3001
     restart: unless-stopped
     depends_on:
       db:
         condition: service_healthy
+      cache:
+        condition: service_started
+
+  cache:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
 
   db:
     image: postgres:16-alpine

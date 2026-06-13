@@ -23,41 +23,8 @@ export declare class FlightsController {
         aircraft: any;
         delayMinutes: number;
     }[]>;
-    getLiveFlights(): Promise<{
-        id: any;
-        callsign: any;
-        icao24: any;
-        airline: any;
-        airlineCode: string;
-        origin: any;
-        originCity: string;
-        destination: any;
-        destinationCity: string;
-        status: string;
-        scheduledDeparture: any;
-        scheduledArrival: any;
-        actualDeparture: any;
-        actualArrival: any;
-        gate: any;
-        terminal: any;
-        aircraft: any;
-        delayMinutes: number;
-    }[]>;
-    getLivePositions(): Promise<{
-        flightId: any;
-        callsign: any;
-        airline: any;
-        latitude: any;
-        longitude: any;
-        altitude: any;
-        velocity: any;
-        heading: any;
-        onGround: any;
-        status: string;
-        origin: any;
-        destination: any;
-        capturedAt: any;
-    }[]>;
+    getLiveFlights(): Promise<any[]>;
+    getLivePositions(): Promise<any[]>;
     getFlightById(id: string): Promise<{
         id: any;
         callsign: any;

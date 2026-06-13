@@ -1,4 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 import { PrismaService } from '../prisma/prisma.service';
 
 // Helper de mapeamento de companhias aéreas
@@ -115,7 +117,10 @@ export function getFlightStatus(state: any, flight: any): string {
 
 @Injectable()
 export class FlightsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+  ) {}
 
   /**
    * Retorna todos os voos cadastrados no banco com seus estados mais recentes
@@ -134,10 +139,13 @@ export class FlightsService {
     return flights.map((f) => this.mapFlightToFrontend(f));
   }
 
-  /**
-   * Retorna a lista dos voos ativos que receberam telemetria nos últimos 10 minutos
-   */
   async getLiveFlights() {
+    const cacheKey = 'live_flights';
+    const cached = await this.cacheManager.get<any[]>(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
     const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
 
     const flights = await this.prisma.flight.findMany({
@@ -160,13 +168,21 @@ export class FlightsService {
       },
     });
 
-    return flights.map((f) => this.mapFlightToFrontend(f));
+    const result = flights.map((f) => this.mapFlightToFrontend(f));
+    await this.cacheManager.set(cacheKey, result, 60000); // cache por 60s (60000ms)
+    return result;
   }
 
   /**
    * Retorna as posições geográficas atuais de todos os voos ativos para o mapa
    */
   async getLivePositions() {
+    const cacheKey = 'live_positions';
+    const cached = await this.cacheManager.get<any[]>(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
     const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
 
     const flights = await this.prisma.flight.findMany({
@@ -190,9 +206,12 @@ export class FlightsService {
       },
     });
 
-    return flights
+    const result = flights
       .filter((f) => f.states && f.states.length > 0)
       .map((f) => this.mapFlightStateToPosition(f.states[0], f));
+
+    await this.cacheManager.set(cacheKey, result, 60000); // cache por 60s (60000ms)
+    return result;
   }
 
   /**

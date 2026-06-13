@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import { io, Socket as ClientSocket } from 'socket.io-client';
 import { FlightsGateway } from '../src/flights/flights.gateway';
-import { FlightsModule } from '../src/flights/flights.module';
+import { FlightsService } from '../src/flights/flights.service';
 import { PrismaModule } from '../src/prisma/prisma.module';
 import { PrismaService } from '../src/prisma/prisma.service';
 
@@ -57,7 +57,19 @@ describe('FlightsGateway (E2E WebSocket)', () => {
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [PrismaModule, FlightsModule],
+      imports: [PrismaModule],
+      providers: [
+        FlightsService,
+        FlightsGateway,
+        {
+          provide: 'CACHE_MANAGER',
+          useValue: {
+            get: jest.fn(),
+            set: jest.fn(),
+            del: jest.fn(),
+          },
+        },
+      ],
     })
       .overrideProvider(PrismaService)
       .useValue(mockPrismaService)
