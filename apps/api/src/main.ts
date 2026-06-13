@@ -13,7 +13,9 @@ async function bootstrap() {
   // Configuração do Swagger
   const config = new DocumentBuilder()
     .setTitle('REC Flight Intelligence API')
-    .setDescription('Plataforma Full-Stack de Monitoramento Aeroportuário em Tempo Real — Recife (REC/SBRF)')
+    .setDescription(
+      'Plataforma Full-Stack de Monitoramento Aeroportuário em Tempo Real — Recife (REC/SBRF)',
+    )
     .setVersion('1.0.0')
     .build();
   const document = SwaggerModule.createDocument(app, config);

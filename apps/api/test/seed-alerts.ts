@@ -26,7 +26,6 @@ const prisma = new PrismaService();
 // ─── Configuração ─────────────────────────────────────────────────────────────
 
 const REC = { lat: -8.1264, lon: -34.9232 };
-const GRU = { lat: -23.4356, lon: -46.4731 };
 const SSA = { lat: -12.9086, lon: -38.3225 };
 
 // Intervalo de sleep entre estados para simular passagem de tempo
@@ -36,29 +35,6 @@ const TICK_MS = 100;
 
 function sleep(ms: number) {
   return new Promise((r) => setTimeout(r, ms));
-}
-
-/** Interpola linearmente entre dois valores */
-function lerp(a: number, b: number, t: number) {
-  return a + (b - a) * t;
-}
-
-/** Fórmula de Haversine — retorna distância em km */
-function haversineKm(
-  lat1: number,
-  lon1: number,
-  lat2: number,
-  lon2: number,
-): number {
-  const R = 6371;
-  const dLat = ((lat2 - lat1) * Math.PI) / 180;
-  const dLon = ((lon2 - lon1) * Math.PI) / 180;
-  const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
-      Math.sin(dLon / 2) ** 2;
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
 /** Formata Date para HH:MM */
@@ -240,29 +216,6 @@ async function scenarioDeparted() {
   });
 
   return { flight, stateGround, stateDeparted };
-}
-
-// ─── Verificação de Alertas ───────────────────────────────────────────────────
-
-async function verifyAlerts(
-  flightId: string,
-  expectedType: string,
-  callsign: string,
-) {
-  // Aguarda até 2 segundos para o alerta aparecer (o AlertsService processa de forma assíncrona)
-  for (let i = 0; i < 20; i++) {
-    const alert = await prisma.alert.findFirst({
-      where: { flightId, type: expectedType },
-      orderBy: { timestamp: 'desc' },
-    });
-
-    if (alert) {
-      return alert;
-    }
-
-    await sleep(100);
-  }
-  return null;
 }
 
 // ─── Invocação do AlertsService diretamente ──────────────────────────────────

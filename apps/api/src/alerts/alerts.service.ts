@@ -90,8 +90,7 @@ export class AlertsService {
       return;
     }
 
-    const { callsign, origin, destination, scheduledArr, scheduledDep } =
-      flight;
+    const { callsign, origin, destination, scheduledArr } = flight;
 
     // Formata a hora para representação visual simples (HH:MM)
     const formatHHMM = (date: Date): string => {

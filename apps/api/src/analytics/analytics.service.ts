@@ -4,7 +4,6 @@ import { PrismaService } from '../prisma/prisma.service';
 import {
   getAirlineInfo,
   calculateDelayMinutes,
-  getFlightStatus,
 } from '../flights/flights.service';
 
 @Injectable()
