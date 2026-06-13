@@ -27,12 +27,17 @@ exports.AppModule = AppModule = __decorate([
             schedule_1.ScheduleModule.forRoot(),
             cache_manager_1.CacheModule.registerAsync({
                 isGlobal: true,
-                useFactory: async () => ({
-                    store: await (0, cache_manager_redis_yet_1.redisStore)({
-                        url: process.env.REDIS_URL || 'redis://localhost:6379',
-                        ttl: 60000,
-                    }),
-                }),
+                useFactory: async () => {
+                    if (process.env.NODE_ENV === 'test') {
+                        return { ttl: 60000 };
+                    }
+                    return {
+                        store: await (0, cache_manager_redis_yet_1.redisStore)({
+                            url: process.env.REDIS_URL || 'redis://localhost:6379',
+                            ttl: 60000,
+                        }),
+                    };
+                },
             }),
             prisma_module_1.PrismaModule,
             flights_module_1.FlightsModule,
