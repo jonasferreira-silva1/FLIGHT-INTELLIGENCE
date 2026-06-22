@@ -63,7 +63,7 @@ let AlertsService = AlertsService_1 = class AlertsService {
             this.logger.warn(`Voo com ID ${flightId} não foi encontrado no banco.`);
             return;
         }
-        const { callsign, origin, destination, scheduledArr, scheduledDep } = flight;
+        const { callsign, origin, destination, scheduledArr } = flight;
         const formatHHMM = (date) => {
             const hours = String(date.getHours()).padStart(2, '0');
             const minutes = String(date.getMinutes()).padStart(2, '0');

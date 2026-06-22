@@ -20,6 +20,7 @@ exports.getFlightStatus = getFlightStatus;
 const common_1 = require("@nestjs/common");
 const cache_manager_1 = require("@nestjs/cache-manager");
 const prisma_service_1 = require("../prisma/prisma.service");
+const ml_client_service_1 = require("../ml-client/ml-client.service");
 function getAirlineInfo(callsign) {
     const prefix3 = callsign.substring(0, 3).toUpperCase();
     const prefix2 = callsign.substring(0, 2).toUpperCase();
@@ -116,9 +117,10 @@ function getFlightStatus(state, flight) {
     return 'airborne';
 }
 let FlightsService = class FlightsService {
-    constructor(prisma, cacheManager) {
+    constructor(prisma, cacheManager, mlClientService) {
         this.prisma = prisma;
         this.cacheManager = cacheManager;
+        this.mlClientService = mlClientService;
     }
     async getFlights() {
         const flights = await this.prisma.flight.findMany({
@@ -280,11 +282,40 @@ let FlightsService = class FlightsService {
             capturedAt: state.timestamp.toISOString(),
         };
     }
+    async getFlightPrediction(id) {
+        const flight = await this.prisma.flight.findUnique({
+            where: { id },
+        });
+        if (!flight) {
+            throw new common_1.NotFoundException(`Voo com ID ${id} não encontrado.`);
+        }
+        const airlineInfo = getAirlineInfo(flight.callsign);
+        const scheduledDepStr = flight.scheduledDep
+            ? flight.scheduledDep.toISOString()
+            : new Date().toISOString();
+        const payload = {
+            callsign: flight.callsign,
+            scheduled_dep: scheduledDepStr,
+            origin: flight.origin || 'GRU',
+            destination: flight.destination || 'REC',
+            airline: airlineInfo.code,
+        };
+        const prediction = await this.mlClientService.predictDelay(payload);
+        if (!prediction) {
+            return {
+                delay_predicted: false,
+                delay_minutes_estimate: 0,
+                confidence: 0.0,
+                model_version: 'fallback-offline',
+            };
+        }
+        return prediction;
+    }
 };
 exports.FlightsService = FlightsService;
 exports.FlightsService = FlightsService = __decorate([
     (0, common_1.Injectable)(),
     __param(1, (0, common_1.Inject)(cache_manager_1.CACHE_MANAGER)),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService, Object])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService, Object, ml_client_service_1.MlClientService])
 ], FlightsService);
 //# sourceMappingURL=flights.service.js.map

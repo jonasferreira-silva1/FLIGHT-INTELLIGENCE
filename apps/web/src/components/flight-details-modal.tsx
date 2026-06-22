@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { 
   Dialog, 
   DialogContent, 
@@ -18,12 +19,16 @@ import {
   Calendar,
   Navigation,
   Gauge,
-  X
+  X,
+  Sparkles
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useFlightStore } from '@/lib/store';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { api } from '@/lib/api';
+import type { DelayPrediction } from '@/lib/types';
+
 
 const statusConfig = {
   scheduled: { label: 'Programado', color: 'bg-muted text-muted-foreground' },
@@ -37,6 +42,42 @@ const statusConfig = {
 
 export function FlightDetailsModal() {
   const { selectedFlight, setSelectedFlight, positions } = useFlightStore();
+
+  const [prediction, setPrediction] = useState<DelayPrediction | null>(null);
+  const [loadingPrediction, setLoadingPrediction] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (!selectedFlight) {
+      setPrediction(null);
+      return;
+    }
+
+    if (['landed', 'cancelled'].includes(selectedFlight.status)) {
+      setPrediction(null);
+      return;
+    }
+
+    let isMounted = true;
+    setLoadingPrediction(true);
+    api.getFlightPrediction(selectedFlight.id)
+      .then((data) => {
+        if (isMounted) {
+          setPrediction(data);
+        }
+      })
+      .catch((err) => {
+        console.error('Error loading prediction:', err);
+      })
+      .finally(() => {
+        if (isMounted) {
+          setLoadingPrediction(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [selectedFlight]);
   
   if (!selectedFlight) return null;
 
@@ -125,6 +166,71 @@ export function FlightDetailsModal() {
                   )}
                 </p>
               </div>
+            </div>
+          )}
+
+          {/* AI Delay Prediction */}
+          {!['landed', 'cancelled'].includes(selectedFlight.status) && (
+            <div className="rounded-lg border border-[color-mix(in_srgb,var(--primary)_20%,transparent)] bg-[color-mix(in_srgb,var(--primary)_5%,transparent)] p-4 space-y-3">
+              <div className="flex items-center gap-2 text-primary">
+                <Sparkles className="h-5 w-5 animate-pulse text-[var(--accent)]" />
+                <h4 className="font-semibold text-foreground">Previsão de Atraso por IA</h4>
+                <Badge variant="outline" className="ml-auto text-[10px] uppercase tracking-wider text-muted-foreground border-border bg-background/50">
+                  {loadingPrediction ? 'Analisando...' : prediction?.modelVersion || 'Modelo Off'}
+                </Badge>
+              </div>
+
+              {loadingPrediction ? (
+                <div className="space-y-2 py-1">
+                  <div className="h-4 w-3/4 rounded bg-muted animate-pulse" />
+                  <div className="h-2 w-full rounded bg-muted animate-pulse" />
+                </div>
+              ) : prediction ? (
+                <div className="space-y-2">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="font-medium text-foreground">
+                        {prediction.delayPredicted ? (
+                          <span className="text-[var(--warning)] flex items-center gap-1.5">
+                            Atraso Estimado: {prediction.delayMinutesEstimate} min
+                          </span>
+                        ) : (
+                          <span className="text-[var(--success)]">
+                            Voo Pontual Estimado
+                          </span>
+                        )}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {prediction.delayPredicted 
+                          ? 'O modelo identificou risco de atraso baseado no histórico e tráfego.' 
+                          : 'As variáveis analisadas indicam alta probabilidade de cumprimento do horário.'}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-xs font-semibold text-foreground">
+                        {Math.round(prediction.confidence * 100)}%
+                      </span>
+                      <p className="text-[10px] text-muted-foreground">Confiança</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
+                      <div 
+                        className={cn(
+                          "h-full transition-all duration-500",
+                          prediction.delayPredicted ? "bg-[var(--warning)]" : "bg-[var(--success)]"
+                        )} 
+                        style={{ width: `${prediction.confidence * 100}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  Serviço de inteligência artificial temporariamente indisponível.
+                </p>
+              )}
             </div>
           )}
 

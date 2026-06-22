@@ -112,4 +112,25 @@ export class FlightsController {
     this.logger.debug(`Requisitando histórico de trajetórias do voo ID: ${id}`);
     return this.flightsService.getFlightStates(id);
   }
+
+  /**
+   * Retorna a predição de atraso da IA para um voo específico.
+   * GET /flights/:id/prediction
+   */
+  @Get(':id/prediction')
+  @ApiOperation({
+    summary: 'Obter predição de atraso via IA',
+    description:
+      'Retorna a estimativa de atraso calculada pelo modelo de Machine Learning.',
+  })
+  @ApiParam({ name: 'id', description: 'ID do voo (UUID)', type: 'string' })
+  @ApiResponse({
+    status: 200,
+    description: 'Predição de atraso retornada com sucesso.',
+  })
+  @ApiResponse({ status: 404, description: 'Voo não encontrado.' })
+  async getFlightPrediction(@Param('id') id: string) {
+    this.logger.debug(`Requisitando predição de IA do voo ID: ${id}`);
+    return this.flightsService.getFlightPrediction(id);
+  }
 }

@@ -5,6 +5,7 @@ import { FlightsGateway } from '../src/flights/flights.gateway';
 import { FlightsService } from '../src/flights/flights.service';
 import { PrismaModule } from '../src/prisma/prisma.module';
 import { PrismaService } from '../src/prisma/prisma.service';
+import { MlClientService } from '../src/ml-client/ml-client.service';
 
 /**
  * Testes de Integração E2E para o FlightsGateway (WebSocket / Socket.io)
@@ -61,6 +62,17 @@ describe('FlightsGateway (E2E WebSocket)', () => {
       providers: [
         FlightsService,
         FlightsGateway,
+        {
+          provide: MlClientService,
+          useValue: {
+            predictDelay: jest.fn().mockResolvedValue({
+              delay_predicted: false,
+              delay_minutes_estimate: 0,
+              confidence: 1.0,
+              model_version: 'mocked-e2e',
+            }),
+          },
+        },
         {
           provide: 'CACHE_MANAGER',
           useValue: {

@@ -34,7 +34,6 @@ FLIGHT INTELLIGENCE
 [![Deploy on Vercel](https://img.shields.io/badge/Frontend-Vercel-black?style=flat-square&logo=vercel)](https://vercel.com)
 [![Deploy on Railway](https://img.shields.io/badge/Backend-Railway-6B47ED?style=flat-square&logo=railway)](https://railway.app)
 [![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub_Actions-2088FF?style=flat-square&logo=githubactions&logoColor=white)](https://github.com/features/actions)
-[![Coverage](https://img.shields.io/badge/Test_Coverage->80%25-22C55E?style=flat-square)](/)
 [![License](https://img.shields.io/badge/License-MIT-F59E0B?style=flat-square)](LICENSE)
 
 <br/>
@@ -43,7 +42,7 @@ FLIGHT INTELLIGENCE
 
 <br/>
 
-[🚀 Demo ao Vivo](https://rec-flight.vercel.app) · [📚 Documentação da API](https://api.rec-flight.com/docs) · [🐛 Reportar Bug](https://github.com/jonasferreira-silva1/rec-flight-intelligence/issues) · [💡 Sugerir Feature](https://github.com/jonasferreira-silva1/rec-flight-intelligence/issues)
+[🚀 Demo ao Vivo (Em breve — deploy em andamento)](/) · [📚 Documentação da API (Local)](http://localhost:3001/docs) · [🐛 Reportar Bug](https://github.com/jonasferreira-silva1/rec-flight-intelligence/issues) · [💡 Sugerir Feature](https://github.com/jonasferreira-silva1/rec-flight-intelligence/issues)
 
 <br/>
 
@@ -146,6 +145,11 @@ Todos os endpoints documentados com **Swagger/OpenAPI** em `/docs`. Paginação 
         ↓
 [Frontend] → atualiza mapa + cards + alertas
 ```
+
+> [!NOTE]
+> **Origem dos Dados e Enriquecimento (ADS-B real-time):**
+> A telemetria física das aeronaves (latitude, longitude, altitude, velocidade, rumo e estado no solo) é **capturada de forma real e em tempo real** através de requisições à API pública do **OpenSky Network (dados de transplantes ADS-B)**.
+> Como a transmissão ADS-B nativa das aeronaves não envia informações de planos de voo comerciais (origem, destino, companhia aérea e horários planejados), o backend NestJS realiza um **enriquecimento dinâmico** desses metadados na criação de novos voos, estimando as rotas em relação ao Aeroporto de Recife (SBRF).
 
 ---
 
@@ -328,20 +332,18 @@ rec-flight-intelligence/
 
 ---
 
-## 🗺️ Roadmap
+## 🗺️ Roadmap (Consolidado)
 
-| Sprint | Duração | Entrega |
-|--------|---------|---------|
-| ✅ Sprint 1 | 1 semana | Setup Docker, Prisma models, seed, health check |
-| ✅ Sprint 2 | 1 semana | Integração OpenSky API, scheduler, `GET /flights/live` |
-| ✅ Sprint 3 | 1 semana | WebSocket Gateway, rooms, emissão de eventos |
-| ✅ Sprint 4 | 1 semana | Mapa MapLibre, FlightCard, animação de aeronaves |
-| 🔄 Sprint 5 | 1 semana | Sistema de alertas, comparação ETA vs. horário previsto |
-| ⏳ Sprint 6 | 1 semana | Página `/analytics`, Recharts, heatmap de atrasos |
-| ⏳ Sprint 7 | 1 semana | Microserviço ML FastAPI, Random Forest, `/predict` |
-| ⏳ Sprint 8 | 1 semana | Testes, CI/CD, deploy Railway + Vercel, README final |
+| Sprint | Duração | Entrega | Status |
+|--------|---------|---------|--------|
+| **Sprint 1** | 1 semana | **Core Backend & Database**: Docker, Prisma models, migrations, DB seed, OpenSky sync inicial. | ✅ Concluído |
+| **Sprint 2** | 1 semana | **Ingestão, Cache & APIs**: Scheduler de telemetria, cache Redis, endpoints `/flights`, `/positions` e alertas. | ✅ Concluído |
+| **Sprint 3** | 1 semana | **Frontend & WebSocket**: Zustand Store, interface de tempo real, conexão Socket.io, mapa MapLibre, e radar. | ✅ Concluído |
+| **Sprint 4** | 1 semana | **Machine Learning**: Microserviço FastAPI, modelo Random Forest classificador/regressor treinado, e rota `/predict`. | ✅ Concluído |
+| **Sprint 5** | 1 semana | **Testes E2E, CI/CD & Deploy**: Configuração GitHub Actions, finalização do Docker Compose, testes de propriedade e deploy. | 🔄 Em andamento |
 
 **Próximas features (pós-MVP):**
+- [ ] Componente de Heatmap de Atrasos na página `/analytics` (API pronta em `/analytics/delay-heatmap`, falta renderização visual no frontend)
 - [ ] Autenticação de usuários com painel de voos favoritos
 - [ ] Notificações push PWA para alertas de voos salvos
 - [ ] Expansão para Natal (NAT), Fortaleza (FOR) e Maceió (MCZ)
@@ -351,28 +353,30 @@ rec-flight-intelligence/
 
 ## 🧪 Testes e Qualidade
 
+O projeto possui cobertura de testes unitários no frontend e backend, testes integrados (E2E) na API e testes baseados em propriedades (Property-Based Testing) com `fast-check` para a validação da robustez do estado reativo do frontend.
+
 ```bash
-# Cobertura de testes backend (Jest)
-cd apps/api && npm run test:cov
-# Meta: > 80% de cobertura
+# Rodar testes unitários do backend (Jest)
+pnpm --filter api test
 
-# Cobertura de testes ML (pytest)
-cd apps/ml && pytest --cov=app --cov-report=html
-# Meta: > 80% de cobertura
+# Rodar testes integrados E2E do backend (Jest)
+pnpm --filter api test:e2e
 
-# Lint e formatação
-npm run lint      # ESLint
-npm run format    # Prettier
+# Rodar testes unitários e baseados em propriedades do frontend (Vitest + fast-check)
+pnpm --filter web test
+
+# Verificar linter e formatação do monorepo
+pnpm run lint
 ```
 
 ---
 
 ## 📜 API Reference
-
-Base URL: `https://api.rec-flight.com/v1`
-
-Documentação interativa completa disponível em [`/docs`](https://api.rec-flight.com/docs) (Swagger UI).
-
+ 
+Base URL (Local): `http://localhost:3001` (Produção: a definir)
+ 
+Documentação interativa completa disponível localmente em [`/docs`](http://localhost:3001/docs) (Swagger UI).
+ 
 | Método | Endpoint | Descrição |
 |--------|----------|-----------|
 | `GET` | `/flights` | Lista voos com filtros: status, airline, date |

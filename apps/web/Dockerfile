@@ -27,6 +27,8 @@ FROM base AS builder
 COPY --from=deps /app .
 
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV NEXT_STANDALONE=true
+ENV NEXT_PUBLIC_API_URL=http://api:3001
 
 RUN pnpm --filter web build
 

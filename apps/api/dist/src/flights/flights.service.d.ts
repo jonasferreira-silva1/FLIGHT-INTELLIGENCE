@@ -1,5 +1,6 @@
 import { Cache } from 'cache-manager';
 import { PrismaService } from '../prisma/prisma.service';
+import { MlClientService } from '../ml-client/ml-client.service';
 export declare function getAirlineInfo(callsign: string): {
     code: string;
     name: string;
@@ -10,7 +11,8 @@ export declare function getFlightStatus(state: any, flight: any): string;
 export declare class FlightsService {
     private readonly prisma;
     private readonly cacheManager;
-    constructor(prisma: PrismaService, cacheManager: Cache);
+    private readonly mlClientService;
+    constructor(prisma: PrismaService, cacheManager: Cache, mlClientService: MlClientService);
     getFlights(): Promise<{
         id: any;
         callsign: any;
@@ -103,4 +105,5 @@ export declare class FlightsService {
         destination: any;
         capturedAt: any;
     };
+    getFlightPrediction(id: string): Promise<import("../ml-client/ml-client.service").PredictResponse>;
 }

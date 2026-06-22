@@ -2,6 +2,8 @@ import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { PrismaService } from '../prisma/prisma.service';
+import { MlClientService } from '../ml-client/ml-client.service';
+
 
 // Helper de mapeamento de companhias aéreas
 export function getAirlineInfo(callsign: string): {
@@ -120,6 +122,7 @@ export class FlightsService {
   constructor(
     private readonly prisma: PrismaService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+    private readonly mlClientService: MlClientService,
   ) {}
 
   /**
@@ -321,6 +324,51 @@ export class FlightsService {
       origin: flight.origin || 'Desconhecido',
       destination: flight.destination || 'Desconhecido',
       capturedAt: state.timestamp.toISOString(),
+    };
+  }
+
+  /**
+   * Obtém a predição de atraso via IA para um voo específico.
+   */
+  async getFlightPrediction(id: string) {
+    const flight = await this.prisma.flight.findUnique({
+      where: { id },
+    });
+
+    if (!flight) {
+      throw new NotFoundException(`Voo com ID ${id} não encontrado.`);
+    }
+
+    const airlineInfo = getAirlineInfo(flight.callsign);
+    const scheduledDepStr = flight.scheduledDep
+      ? flight.scheduledDep.toISOString()
+      : new Date().toISOString();
+
+    const payload = {
+      callsign: flight.callsign,
+      scheduled_dep: scheduledDepStr,
+      origin: flight.origin || 'GRU',
+      destination: flight.destination || 'REC',
+      airline: airlineInfo.code,
+    };
+
+    const prediction = await this.mlClientService.predictDelay(payload);
+    if (!prediction) {
+      return {
+        flightId: id,
+        delayPredicted: false,
+        delayMinutesEstimate: 0,
+        confidence: 0.0,
+        modelVersion: 'fallback-offline',
+      };
+    }
+
+    return {
+      flightId: id,
+      delayPredicted: prediction.delay_predicted,
+      delayMinutesEstimate: prediction.delay_minutes_estimate,
+      confidence: prediction.confidence,
+      modelVersion: prediction.model_version,
     };
   }
 }

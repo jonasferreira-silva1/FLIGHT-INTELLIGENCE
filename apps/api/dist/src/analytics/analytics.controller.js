@@ -35,24 +35,42 @@ let AnalyticsController = AnalyticsController_1 = class AnalyticsController {
 exports.AnalyticsController = AnalyticsController;
 __decorate([
     (0, common_1.Get)('summary'),
-    (0, swagger_1.ApiOperation)({ summary: 'Obter resumo de analytics diário', description: 'Retorna estatísticas agregadas do tráfego aéreo de hoje no Recife (voos totais, taxa de pontualidade, atraso médio, etc).' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Resumo estatístico gerado com sucesso.' }),
+    (0, swagger_1.ApiOperation)({
+        summary: 'Obter resumo de analytics diário',
+        description: 'Retorna estatísticas agregadas do tráfego aéreo de hoje no Recife (voos totais, taxa de pontualidade, atraso médio, etc).',
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Resumo estatístico gerado com sucesso.',
+    }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], AnalyticsController.prototype, "getSummary", null);
 __decorate([
     (0, common_1.Get)('airlines'),
-    (0, swagger_1.ApiOperation)({ summary: 'Obter ranking de companhias aéreas', description: 'Retorna a lista de companhias aéreas ativas no aeroporto com o número total de voos e pontualidade percentual.' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Ranking de companhias retornado com sucesso.' }),
+    (0, swagger_1.ApiOperation)({
+        summary: 'Obter ranking de companhias aéreas',
+        description: 'Retorna a lista de companhias aéreas ativas no aeroporto com o número total de voos e pontualidade percentual.',
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Ranking de companhias retornado com sucesso.',
+    }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], AnalyticsController.prototype, "getAirlineStats", null);
 __decorate([
     (0, common_1.Get)('delay-heatmap'),
-    (0, swagger_1.ApiOperation)({ summary: 'Obter heatmap de atrasos', description: 'Retorna dados em matriz representando o atraso médio de voos agrupados por hora do dia e dia da semana.' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Matriz de heatmap retornada com sucesso.' }),
+    (0, swagger_1.ApiOperation)({
+        summary: 'Obter heatmap de atrasos',
+        description: 'Retorna dados em matriz representando o atraso médio de voos agrupados por hora do dia e dia da semana.',
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Matriz de heatmap retornada com sucesso.',
+    }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)

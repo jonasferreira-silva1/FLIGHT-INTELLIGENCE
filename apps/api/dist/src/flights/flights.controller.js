@@ -42,37 +42,65 @@ let FlightsController = FlightsController_1 = class FlightsController {
         this.logger.debug(`Requisitando histórico de trajetórias do voo ID: ${id}`);
         return this.flightsService.getFlightStates(id);
     }
+    async getFlightPrediction(id) {
+        this.logger.debug(`Requisitando predição de IA do voo ID: ${id}`);
+        return this.flightsService.getFlightPrediction(id);
+    }
 };
 exports.FlightsController = FlightsController;
 __decorate([
     (0, common_1.Get)(),
-    (0, swagger_1.ApiOperation)({ summary: 'Listar todos os voos', description: 'Retorna a lista completa de voos cadastrados no banco com seus estados mais recentes.' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Lista de voos retornada com sucesso.' }),
+    (0, swagger_1.ApiOperation)({
+        summary: 'Listar todos os voos',
+        description: 'Retorna a lista completa de voos cadastrados no banco com seus estados mais recentes.',
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Lista de voos retornada com sucesso.',
+    }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], FlightsController.prototype, "getFlights", null);
 __decorate([
     (0, common_1.Get)('live'),
-    (0, swagger_1.ApiOperation)({ summary: 'Listar voos ativos', description: 'Retorna apenas os voos que receberam telemetria nos últimos 10 minutos.' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Lista de voos ativos retornada com sucesso.' }),
+    (0, swagger_1.ApiOperation)({
+        summary: 'Listar voos ativos',
+        description: 'Retorna apenas os voos que receberam telemetria nos últimos 10 minutos.',
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Lista de voos ativos retornada com sucesso.',
+    }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], FlightsController.prototype, "getLiveFlights", null);
 __decorate([
     (0, common_1.Get)('positions'),
-    (0, swagger_1.ApiOperation)({ summary: 'Obter posições geográficas em tempo real', description: 'Retorna a telemetria geográfica de todas as aeronaves que estão em voo no momento.' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Posições geográficas retornadas com sucesso.' }),
+    (0, swagger_1.ApiOperation)({
+        summary: 'Obter posições geográficas em tempo real',
+        description: 'Retorna a telemetria geográfica de todas as aeronaves que estão em voo no momento.',
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Posições geográficas retornadas com sucesso.',
+    }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], FlightsController.prototype, "getLivePositions", null);
 __decorate([
     (0, common_1.Get)(':id'),
-    (0, swagger_1.ApiOperation)({ summary: 'Obter detalhes de um voo', description: 'Retorna os detalhes planejados e os metadados de um voo a partir do seu ID.' }),
+    (0, swagger_1.ApiOperation)({
+        summary: 'Obter detalhes de um voo',
+        description: 'Retorna os detalhes planejados e os metadados de um voo a partir do seu ID.',
+    }),
     (0, swagger_1.ApiParam)({ name: 'id', description: 'ID do voo (UUID)', type: 'string' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Detalhes do voo retornados com sucesso.' }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Detalhes do voo retornados com sucesso.',
+    }),
     (0, swagger_1.ApiResponse)({ status: 404, description: 'Voo não encontrado.' }),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
@@ -81,15 +109,38 @@ __decorate([
 ], FlightsController.prototype, "getFlightById", null);
 __decorate([
     (0, common_1.Get)(':id/states'),
-    (0, swagger_1.ApiOperation)({ summary: 'Obter histórico de trajetórias de um voo', description: 'Retorna a lista das últimas posições geográficas já reportadas para a aeronave.' }),
+    (0, swagger_1.ApiOperation)({
+        summary: 'Obter histórico de trajetórias de um voo',
+        description: 'Retorna a lista das últimas posições geográficas já reportadas para a aeronave.',
+    }),
     (0, swagger_1.ApiParam)({ name: 'id', description: 'ID do voo (UUID)', type: 'string' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Histórico de trajetórias retornado com sucesso.' }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Histórico de trajetórias retornado com sucesso.',
+    }),
     (0, swagger_1.ApiResponse)({ status: 404, description: 'Voo não encontrado.' }),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], FlightsController.prototype, "getFlightStates", null);
+__decorate([
+    (0, common_1.Get)(':id/prediction'),
+    (0, swagger_1.ApiOperation)({
+        summary: 'Obter predição de atraso via IA',
+        description: 'Retorna a estimativa de atraso calculada pelo modelo de Machine Learning.',
+    }),
+    (0, swagger_1.ApiParam)({ name: 'id', description: 'ID do voo (UUID)', type: 'string' }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Predição de atraso retornada com sucesso.',
+    }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: 'Voo não encontrado.' }),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], FlightsController.prototype, "getFlightPrediction", null);
 exports.FlightsController = FlightsController = FlightsController_1 = __decorate([
     (0, swagger_1.ApiTags)('flights'),
     (0, common_1.Controller)('flights'),

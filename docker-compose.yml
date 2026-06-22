@@ -27,12 +27,21 @@ services:
       - DATABASE_URL=postgresql://rec:rec@db:5432/rec_flight?schema=public
       - REDIS_URL=redis://cache:6379
       - PORT=3001
+      - ML_SERVICE_URL=http://ml:8000
     restart: unless-stopped
     depends_on:
       db:
         condition: service_healthy
       cache:
         condition: service_started
+
+  ml:
+    build:
+      context: ./apps/ml
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
 
   cache:
     image: redis:7-alpine

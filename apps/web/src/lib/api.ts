@@ -1,4 +1,4 @@
-import type { Flight, FlightPosition, FlightAlert, AlertType } from '@/lib/types';
+import type { Flight, FlightPosition, FlightAlert, AlertType, DelayPrediction } from '@/lib/types';
 
 const API_BASE =
   typeof window !== 'undefined'
@@ -99,6 +99,10 @@ export const api = {
 
   async getFlightStates(id: string): Promise<FlightPosition[]> {
     return fetchSafe<FlightPosition[]>(`${API_BASE}/flights/${id}/states`, []);
+  },
+
+  async getFlightPrediction(id: string): Promise<DelayPrediction | null> {
+    return fetchSafe<DelayPrediction | null>(`${API_BASE}/flights/${id}/prediction`, null);
   },
 
   // ── Analytics ──────────────────────────────────────────────────────────────
