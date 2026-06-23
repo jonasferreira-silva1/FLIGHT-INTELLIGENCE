@@ -303,13 +303,20 @@ let FlightsService = class FlightsService {
         const prediction = await this.mlClientService.predictDelay(payload);
         if (!prediction) {
             return {
-                delay_predicted: false,
-                delay_minutes_estimate: 0,
+                flightId: id,
+                delayPredicted: false,
+                delayMinutesEstimate: 0,
                 confidence: 0.0,
-                model_version: 'fallback-offline',
+                modelVersion: 'fallback-offline',
             };
         }
-        return prediction;
+        return {
+            flightId: id,
+            delayPredicted: prediction.delay_predicted,
+            delayMinutesEstimate: prediction.delay_minutes_estimate,
+            confidence: prediction.confidence,
+            modelVersion: prediction.model_version,
+        };
     }
 };
 exports.FlightsService = FlightsService;

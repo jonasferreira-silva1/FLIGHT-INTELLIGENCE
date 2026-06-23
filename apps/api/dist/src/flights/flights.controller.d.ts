@@ -60,5 +60,11 @@ export declare class FlightsController {
         destination: any;
         capturedAt: any;
     }[]>;
-    getFlightPrediction(id: string): Promise<import("../ml-client/ml-client.service").PredictResponse>;
+    getFlightPrediction(id: string): Promise<{
+        flightId: string;
+        delayPredicted: boolean;
+        delayMinutesEstimate: number;
+        confidence: number;
+        modelVersion: string;
+    }>;
 }

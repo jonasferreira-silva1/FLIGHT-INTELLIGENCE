@@ -104,11 +104,43 @@ export class FlightSyncService {
           `Novo voo cadastrado e enriquecido: ${callsign} (${origin} -> ${destination})`,
         );
       } else {
-        // Se o voo já existe, apenas atualiza o timestamp de última modificação
-        flight = await this.prisma.flight.update({
-          where: { id: existingFlight.id },
-          data: { updatedAt: new Date() },
-        });
+        // Se o voo já existe, verifica se o horário de chegada programado já passou há mais de 12 horas.
+        // Se sim, considera que é uma nova operação/leg do mesmo voo e atualiza os horários programados.
+        const now = new Date();
+        const scheduledArr = existingFlight.scheduledArr;
+        const needsUpdate = !scheduledArr || (now.getTime() - new Date(scheduledArr).getTime() > 12 * 60 * 60 * 1000);
+
+        if (needsUpdate) {
+          const isArrival = existingFlight.destination === 'REC';
+          let scheduledDep: Date;
+          let newScheduledArr: Date;
+
+          if (isArrival) {
+            scheduledDep = new Date(now.getTime() - 60 * 60 * 1000); // Decolou há 1 hora
+            newScheduledArr = new Date(now.getTime() + 60 * 60 * 1000); // Chega em 1 hora
+          } else {
+            scheduledDep = new Date(now.getTime() - 15 * 60 * 1000); // Decolou há 15 minutos
+            newScheduledArr = new Date(now.getTime() + 90 * 60 * 1000); // Chega em 1.5 horas
+          }
+
+          flight = await this.prisma.flight.update({
+            where: { id: existingFlight.id },
+            data: {
+              scheduledDep,
+              scheduledArr: newScheduledArr,
+              updatedAt: now,
+            },
+          });
+          this.logger.debug(
+            `Voo ${callsign} identificado como nova perna. Horários programados atualizados para hoje.`,
+          );
+        } else {
+          // Se o voo já existe e é da mesma perna, apenas atualiza o timestamp de última modificação
+          flight = await this.prisma.flight.update({
+            where: { id: existingFlight.id },
+            data: { updatedAt: now },
+          });
+        }
       }
 
       // 2. Recupera o último estado geográfico gravado antes de inserir o novo (para transições)

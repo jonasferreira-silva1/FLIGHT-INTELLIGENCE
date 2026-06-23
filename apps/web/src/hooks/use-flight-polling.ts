@@ -10,10 +10,10 @@ export function useFlightPolling(): void {
     // Carga inicial ao montar
     refreshData();
 
-    // Polling a cada 5 minutos (fallback de segurança caso o WebSocket falhe)
+    // Polling a cada 30 segundos (fallback de segurança caso o WebSocket falhe)
     const interval = setInterval(() => {
       refreshData();
-    }, 300_000);
+    }, 30_000);
 
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps

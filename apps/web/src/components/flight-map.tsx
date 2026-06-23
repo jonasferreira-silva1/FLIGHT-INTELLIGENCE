@@ -163,23 +163,68 @@ function createPlaneMarker(position: FlightPosition): HTMLDivElement {
   el.className = 'plane-marker cursor-pointer';
   
   const isDelayed = position.status === 'delayed';
-  const color = isDelayed ? 'var(--warning)' : 'var(--success)';
-  
+  const isArrival = position.destination === 'REC';
+  const color = isDelayed ? '#f59e0b' : isArrival ? '#10b981' : '#38bdf8';
+  const glowColor = isDelayed ? 'rgba(245,158,11,0.35)' : isArrival ? 'rgba(16,185,129,0.35)' : 'rgba(56,189,248,0.35)';
+
   el.innerHTML = `
-    <div class="relative group">
-      <svg 
-        class="plane-icon h-6 w-6 drop-shadow-lg transition-transform hover:scale-125" 
-        style="transform: rotate(${position.heading}deg); color: ${color};"
-        viewBox="0 0 24 24" 
-        fill="currentColor"
+    <div class="relative group" style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;">
+      <!-- Glow pulse ring -->
+      <div style="
+        position:absolute;
+        inset:-4px;
+        border-radius:50%;
+        background:${glowColor};
+        animation:plane-pulse 2s ease-in-out infinite;
+      "></div>
+      <!-- Plane SVG -->
+      <svg
+        class="plane-icon"
+        style="
+          width:22px;
+          height:22px;
+          transform:rotate(${position.heading}deg);
+          filter:drop-shadow(0 0 4px ${color});
+          transition:transform 0.5s ease;
+          position:relative;
+          z-index:1;
+        "
+        viewBox="0 0 24 24"
+        fill="${color}"
       >
         <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
       </svg>
-      <div class="absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-popover px-2 py-1 text-xs font-medium text-popover-foreground opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
-        ${position.callsign}
-        <div class="text-[10px] text-muted-foreground">${position.origin} → ${position.destination}</div>
+      <!-- Tooltip -->
+      <div style="
+        position:absolute;
+        bottom:calc(100% + 6px);
+        left:50%;
+        transform:translateX(-50%);
+        white-space:nowrap;
+        background:rgba(15,23,42,0.92);
+        border:1px solid ${color}55;
+        border-radius:6px;
+        padding:4px 8px;
+        font-size:11px;
+        font-weight:600;
+        color:#f1f5f9;
+        opacity:0;
+        pointer-events:none;
+        transition:opacity 0.2s;
+        box-shadow:0 4px 12px rgba(0,0,0,0.4);
+      " class="plane-tooltip">
+        ✈ ${position.callsign}
+        <div style="font-size:10px;color:#94a3b8;font-weight:400;">${position.origin} → ${position.destination}</div>
+        <div style="font-size:10px;color:${color};font-weight:500;">${isArrival ? '↓ Chegando' : '↑ Partindo'}</div>
       </div>
     </div>
+    <style>
+      @keyframes plane-pulse {
+        0%, 100% { opacity: 0.4; transform: scale(1); }
+        50% { opacity: 0.8; transform: scale(1.3); }
+      }
+      .plane-marker:hover .plane-tooltip { opacity: 1 !important; }
+    </style>
   `;
   
   return el;

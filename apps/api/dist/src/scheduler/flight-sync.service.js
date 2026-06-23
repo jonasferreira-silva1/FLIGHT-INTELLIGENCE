@@ -81,10 +81,37 @@ let FlightSyncService = FlightSyncService_1 = class FlightSyncService {
                 this.logger.debug(`Novo voo cadastrado e enriquecido: ${callsign} (${origin} -> ${destination})`);
             }
             else {
-                flight = await this.prisma.flight.update({
-                    where: { id: existingFlight.id },
-                    data: { updatedAt: new Date() },
-                });
+                const now = new Date();
+                const scheduledArr = existingFlight.scheduledArr;
+                const needsUpdate = !scheduledArr || (now.getTime() - new Date(scheduledArr).getTime() > 12 * 60 * 60 * 1000);
+                if (needsUpdate) {
+                    const isArrival = existingFlight.destination === 'REC';
+                    let scheduledDep;
+                    let newScheduledArr;
+                    if (isArrival) {
+                        scheduledDep = new Date(now.getTime() - 60 * 60 * 1000);
+                        newScheduledArr = new Date(now.getTime() + 60 * 60 * 1000);
+                    }
+                    else {
+                        scheduledDep = new Date(now.getTime() - 15 * 60 * 1000);
+                        newScheduledArr = new Date(now.getTime() + 90 * 60 * 1000);
+                    }
+                    flight = await this.prisma.flight.update({
+                        where: { id: existingFlight.id },
+                        data: {
+                            scheduledDep,
+                            scheduledArr: newScheduledArr,
+                            updatedAt: now,
+                        },
+                    });
+                    this.logger.debug(`Voo ${callsign} identificado como nova perna. Horários programados atualizados para hoje.`);
+                }
+                else {
+                    flight = await this.prisma.flight.update({
+                        where: { id: existingFlight.id },
+                        data: { updatedAt: now },
+                    });
+                }
             }
             const previousState = await this.prisma.flightState.findFirst({
                 where: { flightId: flight.id },

@@ -189,54 +189,81 @@ export function AirTrafficRadar() {
 
           {planes.map((plane) => {
             const isHighlighted = Math.abs(((sweepAngle - Math.atan2(plane.y - 50, plane.x - 50) * 180 / Math.PI + 360) % 360)) < 30
+            const color = plane.type === "arrival" ? "hsl(142 76% 36%)" : "hsl(199 89% 48%)"
+            const colorFaint = plane.type === "arrival" ? "hsl(142 76% 36% / 0.25)" : "hsl(199 89% 48% / 0.25)"
+            const trailAngleRad = (plane.angle * Math.PI) / 180
             
             return (
               <g key={plane.id}>
-                <line
-                  x1={plane.x}
-                  y1={plane.y}
-                  x2={plane.x - Math.cos((plane.angle * Math.PI) / 180) * 3}
-                  y2={plane.y - Math.sin((plane.angle * Math.PI) / 180) * 3}
-                  stroke={plane.type === "arrival" ? "hsl(142 76% 36% / 0.5)" : "hsl(199 89% 48% / 0.5)"}
-                  strokeWidth="0.4"
-                />
-                
-                <g transform={`translate(${plane.x}, ${plane.y}) rotate(${plane.angle + 90})`}>
-                  <path
-                    d="M 0 -1.2 L 0.8 0.8 L 0 0.4 L -0.8 0.8 Z"
-                    fill={plane.type === "arrival" ? "hsl(142 76% 36%)" : "hsl(199 89% 48%)"}
-                    className={cn(
-                      "transition-opacity duration-300",
-                      isHighlighted ? "opacity-100" : "opacity-70"
-                    )}
+                {/* Animated trail behind the plane */}
+                {[1, 2, 3, 4].map((step) => (
+                  <circle
+                    key={step}
+                    cx={plane.x - Math.cos(trailAngleRad) * (plane.type === "arrival" ? -step * 1.2 : step * 1.2)}
+                    cy={plane.y - Math.sin(trailAngleRad) * (plane.type === "arrival" ? -step * 1.2 : step * 1.2)}
+                    r={0.5 - step * 0.1}
+                    fill={color}
+                    opacity={0.4 - step * 0.08}
                   />
+                ))}
+
+                {/* Plane icon rotated to heading */}
+                <g
+                  transform={`translate(${plane.x}, ${plane.y}) rotate(${plane.angle + 90})`}
+                  className={cn(
+                    "transition-opacity duration-300",
+                    isHighlighted ? "opacity-100" : "opacity-75"
+                  )}
+                >
+                  {/* Fuselage */}
+                  <rect x="-0.35" y="-1.5" width="0.7" height="2.8" rx="0.35" fill={color} />
+                  {/* Main wings */}
+                  <path d="M -0.35 -0.2 L -2.2 0.9 L -2.2 1.3 L -0.35 0.6 Z" fill={color} />
+                  <path d="M 0.35 -0.2 L 2.2 0.9 L 2.2 1.3 L 0.35 0.6 Z" fill={color} />
+                  {/* Tail fins */}
+                  <path d="M -0.35 1.1 L -1.1 1.8 L -1.1 2.1 L -0.35 1.7 Z" fill={color} />
+                  <path d="M 0.35 1.1 L 1.1 1.8 L 1.1 2.1 L 0.35 1.7 Z" fill={color} />
+                  {/* Nose highlight */}
+                  <ellipse cx="0" cy="-1.3" rx="0.2" ry="0.3" fill="white" opacity="0.4" />
                 </g>
 
+                {/* Glow ring when highlighted by sweep */}
+                {isHighlighted && (
+                  <circle
+                    cx={plane.x}
+                    cy={plane.y}
+                    r="2.5"
+                    fill="none"
+                    stroke={color}
+                    strokeWidth="0.4"
+                    opacity="0.6"
+                  />
+                )}
+
+                {/* Label when highlighted */}
                 {isHighlighted && (
                   <g>
                     <rect
-                      x={plane.x + 1.5}
-                      y={plane.y - 2.5}
-                      width="12"
-                      height="5"
+                      x={plane.x + 2}
+                      y={plane.y - 3}
+                      width="13"
+                      height="5.5"
                       rx="0.5"
-                      fill="hsl(var(--card) / 0.9)"
-                      stroke={plane.type === "arrival" ? "hsl(142 76% 36% / 0.5)" : "hsl(199 89% 48% / 0.5)"}
-                      strokeWidth="0.2"
+                      fill="hsl(var(--card) / 0.92)"
+                      stroke={color}
+                      strokeWidth="0.25"
                     />
-                    <text 
-                      x={plane.x + 2} 
-                      y={plane.y - 0.5} 
-                      className="fill-foreground text-[2px] font-medium"
-                    >
-                      {plane.flightNumber}
+                    {/* Small plane icon in label */}
+                    <text x={plane.x + 2.8} y={plane.y - 0.8} className="fill-foreground" fontSize="2" fontWeight="600">
+                      ✈ {plane.flightNumber}
                     </text>
-                    <text 
-                      x={plane.x + 2} 
-                      y={plane.y + 1.5} 
-                      className="fill-muted-foreground text-[1.5px]"
+                    <text
+                      x={plane.x + 2.8}
+                      y={plane.y + 1.5}
+                      className="fill-muted-foreground"
+                      fontSize="1.5"
                     >
-                      {Math.round(plane.altitude).toLocaleString()}m
+                      {Math.round(plane.altitude / 1000)}km alt
                     </text>
                   </g>
                 )}

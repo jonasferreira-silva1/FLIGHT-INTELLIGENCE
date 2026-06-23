@@ -188,6 +188,7 @@ export class FlightsService {
 
     const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
 
+    // Busca voos que tiveram telemetria recente (independente de onGround)
     const flights = await this.prisma.flight.findMany({
       where: {
         states: {
@@ -195,7 +196,6 @@ export class FlightsService {
             timestamp: {
               gte: tenMinutesAgo,
             },
-            onGround: false, // O mapa plota apenas aeronaves voando
           },
         },
       },
@@ -209,11 +209,12 @@ export class FlightsService {
       },
     });
 
+    // Filtra no JS: apenas inclui aeronaves cujo estado mais recente seja em voo (onGround: false)
     const result = flights
-      .filter((f) => f.states && f.states.length > 0)
+      .filter((f) => f.states && f.states.length > 0 && f.states[0].onGround === false)
       .map((f) => this.mapFlightStateToPosition(f.states[0], f));
 
-    await this.cacheManager.set(cacheKey, result, 60000); // cache por 60s (60000ms)
+    await this.cacheManager.set(cacheKey, result, 30000); // cache por 30s
     return result;
   }
 
