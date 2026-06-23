@@ -52,6 +52,10 @@ export class FlightSyncService {
       const onGround = state[8] as boolean;
       const velocity = state[9];
       const heading = state[10];
+      // Campos extras da simulação (undefined quando dados são reais da OpenSky)
+      const simulatedDelayMinutes: number = state[14] ?? 0;
+      const simulatedOrigin: string | undefined = state[15];
+      const simulatedDest: string | undefined = state[16];
 
       // Ignora registros de aeronaves sem dados válidos de latitude/longitude
       if (latitude === null || longitude === null) continue;
@@ -63,32 +67,36 @@ export class FlightSyncService {
 
       let flight;
       if (!existingFlight) {
-        // Determina se o voo está chegando ou partindo de Recife (REC)
-        const isArrival = Math.random() > 0.5;
+        // Usa a rota da simulação se disponível, senão sorteia
+        const isArrival = simulatedDest
+          ? simulatedDest === 'REC'
+          : Math.random() > 0.5;
 
-        // Sorteia outro aeroporto brasileiro como par de rota
-        const otherAirports = Object.keys(AIRPORT_COORDINATES).filter(
-          (code) => code !== 'REC',
-        );
-        const randomAirport =
-          otherAirports[Math.floor(Math.random() * otherAirports.length)];
-
-        const origin = isArrival ? randomAirport : 'REC';
-        const destination = isArrival ? 'REC' : randomAirport;
-        const airlineInfo = getAirlineInfo(callsign);
-
-        // Define horários estimados baseados no horário atual do processamento
-        const now = new Date();
-        let scheduledDep: Date;
-        let scheduledArr: Date;
-
-        if (isArrival) {
-          scheduledDep = new Date(now.getTime() - 60 * 60 * 1000); // Decolou há 1 hora
-          scheduledArr = new Date(now.getTime() + 60 * 60 * 1000); // Chega em 1 hora
+        let origin: string;
+        let destination: string;
+        if (simulatedOrigin && simulatedDest) {
+          origin = simulatedOrigin;
+          destination = simulatedDest;
         } else {
-          scheduledDep = new Date(now.getTime() - 15 * 60 * 1000); // Decolou há 15 minutos
-          scheduledArr = new Date(now.getTime() + 90 * 60 * 1000); // Chega em 1.5 horas
+          const otherAirports = Object.keys(AIRPORT_COORDINATES).filter(
+            (code) => code !== 'REC',
+          );
+          const randomAirport =
+            otherAirports[Math.floor(Math.random() * otherAirports.length)];
+          origin = isArrival ? randomAirport : 'REC';
+          destination = isArrival ? 'REC' : randomAirport;
         }
+
+        const airlineInfo = getAirlineInfo(callsign);
+        const now = new Date();
+
+        // scheduledArr: hora planejada SEM o atraso
+        // Se há atraso simulado, o horário planejado é mais cedo que o ETA real
+        const baseArrivalMs = isArrival
+          ? now.getTime() + 60 * 60 * 1000          // chegaria em 1h pontualmente
+          : now.getTime() + 90 * 60 * 1000;
+        const scheduledArr = new Date(baseArrivalMs - simulatedDelayMinutes * 60 * 1000);
+        const scheduledDep = new Date(now.getTime() - 60 * 60 * 1000);
 
         flight = await this.prisma.flight.create({
           data: {
@@ -101,7 +109,7 @@ export class FlightSyncService {
           },
         });
         this.logger.debug(
-          `Novo voo cadastrado e enriquecido: ${callsign} (${origin} -> ${destination})`,
+          `Novo voo cadastrado: ${callsign} (${origin} -> ${destination})${simulatedDelayMinutes > 0 ? ` | Atraso: ${simulatedDelayMinutes}min` : ''}`,
         );
       } else {
         // Se o voo já existe, verifica se o horário de chegada programado já passou há mais de 12 horas.

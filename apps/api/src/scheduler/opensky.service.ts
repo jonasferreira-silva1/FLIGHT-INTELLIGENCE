@@ -18,16 +18,22 @@ const AIRPORTS: Record<string, { lat: number; lon: number }> = {
   POA: { lat: -29.9939, lon: -51.1711 },
 };
 
-// Callsigns simulados realistas para o nordeste brasileiro
-const SIMULATED_FLIGHTS = [
-  { icao24: 'e4955a', callsign: 'GLO1234', origin: 'GRU', dest: 'REC' },
-  { icao24: 'e49b1c', callsign: 'AZU4501', origin: 'BSB', dest: 'REC' },
-  { icao24: 'e4a210', callsign: 'TAM3087', origin: 'REC', dest: 'GIG' },
-  { icao24: 'e4c301', callsign: 'GLO1847', origin: 'SSA', dest: 'REC' },
-  { icao24: 'e4d102', callsign: 'AZU5923', origin: 'REC', dest: 'FOR' },
-  { icao24: 'e4e205', callsign: 'TAM3401', origin: 'FOR', dest: 'REC' },
-  { icao24: 'e4f308', callsign: 'GLO2210', origin: 'REC', dest: 'CGH' },
-  { icao24: 'e50112', callsign: 'AZU6017', origin: 'CNF', dest: 'REC' },
+// Voos simulados: arrivals para REC têm delayMinutes > 0 para gerar alertas realistas
+const SIMULATED_FLIGHTS: Array<{
+  icao24: string;
+  callsign: string;
+  origin: string;
+  dest: string;
+  delayMinutes: number; // atraso em minutos (0 = pontual)
+}> = [
+  { icao24: 'e4955a', callsign: 'GLO1234', origin: 'GRU', dest: 'REC', delayMinutes: 35 },
+  { icao24: 'e49b1c', callsign: 'AZU4501', origin: 'BSB', dest: 'REC', delayMinutes: 0  },
+  { icao24: 'e4a210', callsign: 'TAM3087', origin: 'REC', dest: 'GIG', delayMinutes: 0  },
+  { icao24: 'e4c301', callsign: 'GLO1847', origin: 'SSA', dest: 'REC', delayMinutes: 52 },
+  { icao24: 'e4d102', callsign: 'AZU5923', origin: 'REC', dest: 'FOR', delayMinutes: 20 },
+  { icao24: 'e4e205', callsign: 'TAM3401', origin: 'FOR', dest: 'REC', delayMinutes: 0  },
+  { icao24: 'e4f308', callsign: 'GLO2210', origin: 'REC', dest: 'CGH', delayMinutes: 0  },
+  { icao24: 'e50112', callsign: 'AZU6017', origin: 'CNF', dest: 'REC', delayMinutes: 18 },
 ];
 
 @Injectable()
@@ -139,6 +145,9 @@ export class OpenskyService {
         0,                        // 11: vertical_rate
         null,                     // 12: sensors
         altitude,                 // 13: geo_altitude
+        flight.delayMinutes,      // 14: delayMinutes (campo extra para o sync service)
+        flight.origin,            // 15: origin (campo extra)
+        flight.dest,              // 16: dest (campo extra)
       ]);
     }
 

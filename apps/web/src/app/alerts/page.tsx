@@ -23,6 +23,7 @@ import { api } from '@/lib/api';
 import type { FlightAlert } from '@/lib/types';
 import { format, formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { useState } from 'react';
 
 const alertConfig: Record<
   FlightAlert['type'],
@@ -62,6 +63,7 @@ const alertConfig: Record<
 
 export default function AlertsPage() {
   const { alerts, markAlertRead, markAllAlertsRead, clearAlerts } = useFlightStore();
+  const [dismissing, setDismissing] = useState<Set<string>>(new Set());
 
   const unreadCount = alerts.filter((a) => !a.read).length;
   const todayAlerts = alerts.filter((a) => {
@@ -70,17 +72,42 @@ export default function AlertsPage() {
     return alertDate.toDateString() === today.toDateString();
   });
 
-  const markAllRead = async () => {
-    await api.markAllAlertsRead();
-    markAllAlertsRead();
+  const handleMarkRead = async (alertId: string) => {
+    setDismissing((prev) => new Set(prev).add(alertId));
+    setTimeout(async () => {
+      await api.markAlertRead(alertId);
+      markAlertRead(alertId);
+      setDismissing((prev) => {
+        const next = new Set(prev);
+        next.delete(alertId);
+        return next;
+      });
+    }, 350);
+  };
+
+  const handleMarkAllRead = async () => {
+    const unreadIds = alerts.filter((a) => !a.read).map((a) => a.id);
+    setDismissing(new Set(unreadIds));
+    setTimeout(async () => {
+      await api.markAllAlertsRead();
+      markAllAlertsRead();
+      setDismissing(new Set());
+    }, 350);
   };
 
   const handleClearAlerts = async () => {
-    await api.clearAlerts();
-    clearAlerts();
+    setDismissing(new Set(alerts.map((a) => a.id)));
+    setTimeout(async () => {
+      await api.clearAlerts();
+      clearAlerts();
+      setDismissing(new Set());
+    }, 350);
   };
 
-  const groupedAlerts = alerts.reduce(
+  // Mostra apenas alertas não lidos + os que estão em animação de saída
+  const displayAlerts = alerts.filter((a) => !a.read || dismissing.has(a.id));
+
+  const groupedAlerts = displayAlerts.reduce(
     (acc, alert) => {
       const date = new Date(alert.timestamp).toDateString();
       if (!acc[date]) acc[date] = [];
@@ -137,12 +164,12 @@ export default function AlertsPage() {
 
           {/* Actions */}
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-foreground">Histórico de Alertas</h2>
+            <h2 className="text-lg font-semibold text-foreground">Alertas Não Lidos</h2>
             <div className="flex gap-2">
               <Button
                 variant="outline"
                 size="sm"
-                onClick={markAllRead}
+                onClick={handleMarkAllRead}
                 disabled={unreadCount === 0}
               >
                 <Check className="mr-1.5 h-4 w-4" />
@@ -163,12 +190,12 @@ export default function AlertsPage() {
           {/* Alerts List */}
           <Card>
             <CardContent className="p-0">
-              {alerts.length === 0 ? (
+              {displayAlerts.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12 text-center">
-                  <Bell className="h-12 w-12 text-muted-foreground/50" />
-                  <h3 className="mt-4 text-lg font-semibold text-foreground">Nenhum alerta</h3>
+                  <Check className="h-12 w-12 text-[var(--success)]/50" />
+                  <h3 className="mt-4 text-lg font-semibold text-foreground">Tudo em dia!</h3>
                   <p className="mt-2 text-sm text-muted-foreground">
-                    Os alertas de voo aparecerão aqui em tempo real.
+                    Não há alertas não lidos no momento.
                   </p>
                 </div>
               ) : (
@@ -188,10 +215,8 @@ export default function AlertsPage() {
                             <AlertItem
                               key={alert.id}
                               alert={alert}
-                              onMarkRead={async () => {
-                                await api.markAlertRead(alert.id);
-                                markAlertRead(alert.id);
-                              }}
+                              isDismissing={dismissing.has(alert.id)}
+                              onMarkRead={() => handleMarkRead(alert.id)}
                             />
                           ))}
                         </div>
@@ -235,9 +260,11 @@ export default function AlertsPage() {
 
 function AlertItem({
   alert,
+  isDismissing,
   onMarkRead,
 }: {
   alert: FlightAlert;
+  isDismissing: boolean;
   onMarkRead: () => void;
 }) {
   const config = alertConfig[alert.type] ?? alertConfig.delay;
@@ -245,20 +272,25 @@ function AlertItem({
 
   return (
     <div
-      className={cn(
-        'flex items-start gap-4 p-4 transition-colors hover:bg-secondary/50',
-        !alert.read && 'bg-primary/5',
-      )}
+      style={{
+        transition: 'opacity 0.3s ease, transform 0.3s ease, max-height 0.35s ease, padding 0.35s ease',
+        opacity: isDismissing ? 0 : 1,
+        transform: isDismissing ? 'translateX(32px)' : 'translateX(0)',
+        maxHeight: isDismissing ? '0px' : '160px',
+        overflow: 'hidden',
+        padding: isDismissing ? '0 1rem' : undefined,
+      }}
+      className="flex items-start gap-4 p-4 bg-primary/5 hover:bg-secondary/50"
     >
-      <div className={cn('rounded-lg p-2', config.bgColor)}>
+      <div className={cn('rounded-lg p-2 shrink-0', config.bgColor)}>
         <Icon className={cn('h-5 w-5', config.color)} />
       </div>
 
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <p className="font-mono text-sm font-semibold text-foreground">{alert.callsign}</p>
           <Badge className={cn('text-xs', config.bgColor, config.color)}>{config.label}</Badge>
-          {!alert.read && <span className="h-2 w-2 rounded-full bg-primary" />}
+          <span className="h-2 w-2 rounded-full bg-primary" />
         </div>
         <p className="mt-1 text-sm text-foreground">{alert.message}</p>
         <p className="mt-1 text-xs text-muted-foreground">
@@ -269,11 +301,15 @@ function AlertItem({
         </p>
       </div>
 
-      {!alert.read && (
-        <Button variant="ghost" size="sm" onClick={onMarkRead}>
-          <Check className="h-4 w-4" />
-        </Button>
-      )}
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={onMarkRead}
+        title="Marcar como lido"
+        className="shrink-0"
+      >
+        <Check className="h-4 w-4" />
+      </Button>
     </div>
   );
 }
