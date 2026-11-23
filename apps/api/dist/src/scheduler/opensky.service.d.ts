@@ -3,6 +3,8 @@ export declare class OpenskyService {
     private readonly httpService;
     private readonly logger;
     private readonly baseUrl;
+    private simulatedProgress;
     constructor(httpService: HttpService);
-    getFlightsInRecife(): Promise<any>;
+    getFlightsInRecife(): Promise<any[]>;
+    private generateSimulatedStates;
 }

@@ -178,7 +178,6 @@ let FlightsService = class FlightsService {
                         timestamp: {
                             gte: tenMinutesAgo,
                         },
-                        onGround: false,
                     },
                 },
             },
@@ -192,9 +191,9 @@ let FlightsService = class FlightsService {
             },
         });
         const result = flights
-            .filter((f) => f.states && f.states.length > 0)
+            .filter((f) => f.states && f.states.length > 0 && f.states[0].onGround === false)
             .map((f) => this.mapFlightStateToPosition(f.states[0], f));
-        await this.cacheManager.set(cacheKey, result, 60000);
+        await this.cacheManager.set(cacheKey, result, 30000);
         return result;
     }
     async getFlightById(id) {

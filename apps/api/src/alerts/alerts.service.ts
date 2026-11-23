@@ -112,13 +112,23 @@ export class AlertsService {
       const message = `✈️ ${callsign} decolou de Recife (REC) com destino a ${destCity} (${destination}) às ${formatHHMM(currentState.timestamp)}.`;
 
       const alert = await this.prisma.alert.create({
-        data: { flightId, type: 'departed', message, timestamp: currentState.timestamp },
+        data: {
+          flightId,
+          type: 'departed',
+          message,
+          timestamp: currentState.timestamp,
+        },
       });
 
       this.logger.log(`Alerta de Decolagem: ${callsign} → ${destination}`);
       this.gateway.emitDeparted({
-        id: alert.id, flightId, callsign, type: 'departed',
-        message, timestamp: alert.timestamp.toISOString(), read: false,
+        id: alert.id,
+        flightId,
+        callsign,
+        type: 'departed',
+        message,
+        timestamp: alert.timestamp.toISOString(),
+        read: false,
       });
       return;
     }
@@ -136,13 +146,23 @@ export class AlertsService {
       const message = `🛬 ${callsign} pousou em Recife (REC) às ${formatHHMM(currentState.timestamp)}. Voo procedente de ${origCity} (${origin}).`;
 
       const alert = await this.prisma.alert.create({
-        data: { flightId, type: 'landed', message, timestamp: currentState.timestamp },
+        data: {
+          flightId,
+          type: 'landed',
+          message,
+          timestamp: currentState.timestamp,
+        },
       });
 
       this.logger.log(`Alerta de Pouso: ${callsign} ← ${origin}`);
       this.gateway.emitLanded({
-        id: alert.id, flightId, callsign, type: 'landed',
-        message, timestamp: alert.timestamp.toISOString(), read: false,
+        id: alert.id,
+        flightId,
+        callsign,
+        type: 'landed',
+        message,
+        timestamp: alert.timestamp.toISOString(),
+        read: false,
       });
       return;
     }
@@ -160,14 +180,18 @@ export class AlertsService {
         recCoords.lon,
       );
 
-      const timeToTargetSeconds = this.estimateTimeToTarget(distance, currentState.velocity);
-      const eta = new Date(currentState.timestamp.getTime() + timeToTargetSeconds * 1000);
+      const timeToTargetSeconds = this.estimateTimeToTarget(
+        distance,
+        currentState.velocity,
+      );
+      const eta = new Date(
+        currentState.timestamp.getTime() + timeToTargetSeconds * 1000,
+      );
       const delayMs = eta.getTime() - scheduledArr.getTime();
       const delayMinutes = Math.floor(delayMs / 60000);
 
       // Alerta de APROXIMAÇÃO FINAL (< 80km de REC)
       if (distance < 80) {
-        const approachKey = `approach_${flightId}`;
         const recentApproach = await this.prisma.alert.findFirst({
           where: { flightId, type: 'landed' },
           orderBy: { timestamp: 'desc' },
@@ -179,17 +203,28 @@ export class AlertsService {
         if (!alreadyApproached && !recentApproach) {
           const distKm = Math.round(distance);
           const etaStr = formatHHMM(eta);
-          const delayStr = delayMinutes > 5 ? ` (${delayMinutes}min de atraso)` : '';
+          const delayStr =
+            delayMinutes > 5 ? ` (${delayMinutes}min de atraso)` : '';
           const message = `🔵 ${callsign} em aproximação final de ${origCity} (${origin}) — ${distKm}km de REC. Pouso previsto às ${etaStr}${delayStr}.`;
 
           const alert = await this.prisma.alert.create({
-            data: { flightId, type: 'landed', message, timestamp: currentState.timestamp },
+            data: {
+              flightId,
+              type: 'landed',
+              message,
+              timestamp: currentState.timestamp,
+            },
           });
 
           this.logger.log(`Alerta de Aproximação: ${callsign} a ${distKm}km`);
           this.gateway.emitAlert({
-            id: alert.id, flightId, callsign, type: 'landed',
-            message, timestamp: alert.timestamp.toISOString(), read: false,
+            id: alert.id,
+            flightId,
+            callsign,
+            type: 'landed',
+            message,
+            timestamp: alert.timestamp.toISOString(),
+            read: false,
           });
         }
       }
@@ -206,9 +241,12 @@ export class AlertsService {
           generateNewAlert = true;
         } else {
           const timeSinceLastAlertMs =
-            currentState.timestamp.getTime() - latestDelayAlert.timestamp.getTime();
+            currentState.timestamp.getTime() -
+            latestDelayAlert.timestamp.getTime();
           const parsedMessage = latestDelayAlert.message.match(/(\d+)\s*min/);
-          const previousDelayMinutes = parsedMessage ? parseInt(parsedMessage[1], 10) : 0;
+          const previousDelayMinutes = parsedMessage
+            ? parseInt(parsedMessage[1], 10)
+            : 0;
           const delayDifference = Math.abs(delayMinutes - previousDelayMinutes);
           if (delayDifference >= 5 || timeSinceLastAlertMs > 10 * 60 * 1000) {
             generateNewAlert = true;
@@ -221,13 +259,24 @@ export class AlertsService {
           const message = `⚠️ ${callsign} (${origCity} → REC) com atraso de ${delayMinutes}min. Previsto ${scheduledStr}, novo ETA ${etaStr}.`;
 
           const alert = await this.prisma.alert.create({
-            data: { flightId, type: 'delay', message, timestamp: currentState.timestamp },
+            data: {
+              flightId,
+              type: 'delay',
+              message,
+              timestamp: currentState.timestamp,
+            },
           });
 
           this.logger.log(`Alerta de Atraso: ${callsign} — ${delayMinutes}min`);
           this.gateway.emitAlert({
-            id: alert.id, flightId, callsign, type: 'delay',
-            message, timestamp: alert.timestamp.toISOString(), read: false, delayMinutes,
+            id: alert.id,
+            flightId,
+            callsign,
+            type: 'delay',
+            message,
+            timestamp: alert.timestamp.toISOString(),
+            read: false,
+            delayMinutes,
           });
         }
       }

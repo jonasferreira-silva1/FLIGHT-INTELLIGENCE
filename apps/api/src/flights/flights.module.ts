@@ -11,4 +11,3 @@ import { MlClientModule } from '../ml-client/ml-client.module';
   exports: [FlightsService, FlightsGateway],
 })
 export class FlightsModule {}
-

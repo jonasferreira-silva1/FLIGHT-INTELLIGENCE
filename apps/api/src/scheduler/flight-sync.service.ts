@@ -93,9 +93,11 @@ export class FlightSyncService {
         // scheduledArr: hora planejada SEM o atraso
         // Se há atraso simulado, o horário planejado é mais cedo que o ETA real
         const baseArrivalMs = isArrival
-          ? now.getTime() + 60 * 60 * 1000          // chegaria em 1h pontualmente
+          ? now.getTime() + 60 * 60 * 1000 // chegaria em 1h pontualmente
           : now.getTime() + 90 * 60 * 1000;
-        const scheduledArr = new Date(baseArrivalMs - simulatedDelayMinutes * 60 * 1000);
+        const scheduledArr = new Date(
+          baseArrivalMs - simulatedDelayMinutes * 60 * 1000,
+        );
         const scheduledDep = new Date(now.getTime() - 60 * 60 * 1000);
 
         flight = await this.prisma.flight.create({
@@ -116,7 +118,10 @@ export class FlightSyncService {
         // Se sim, considera que é uma nova operação/leg do mesmo voo e atualiza os horários programados.
         const now = new Date();
         const scheduledArr = existingFlight.scheduledArr;
-        const needsUpdate = !scheduledArr || (now.getTime() - new Date(scheduledArr).getTime() > 12 * 60 * 60 * 1000);
+        const needsUpdate =
+          !scheduledArr ||
+          now.getTime() - new Date(scheduledArr).getTime() >
+            12 * 60 * 60 * 1000;
 
         if (needsUpdate) {
           const isArrival = existingFlight.destination === 'REC';

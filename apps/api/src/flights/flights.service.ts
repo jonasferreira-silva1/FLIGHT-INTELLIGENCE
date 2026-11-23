@@ -4,7 +4,6 @@ import { Cache } from 'cache-manager';
 import { PrismaService } from '../prisma/prisma.service';
 import { MlClientService } from '../ml-client/ml-client.service';
 
-
 // Helper de mapeamento de companhias aéreas
 export function getAirlineInfo(callsign: string): {
   code: string;
@@ -211,7 +210,10 @@ export class FlightsService {
 
     // Filtra no JS: apenas inclui aeronaves cujo estado mais recente seja em voo (onGround: false)
     const result = flights
-      .filter((f) => f.states && f.states.length > 0 && f.states[0].onGround === false)
+      .filter(
+        (f) =>
+          f.states && f.states.length > 0 && f.states[0].onGround === false,
+      )
       .map((f) => this.mapFlightStateToPosition(f.states[0], f));
 
     await this.cacheManager.set(cacheKey, result, 30000); // cache por 30s

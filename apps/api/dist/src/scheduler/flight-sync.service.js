@@ -44,6 +44,9 @@ let FlightSyncService = FlightSyncService_1 = class FlightSyncService {
             const onGround = state[8];
             const velocity = state[9];
             const heading = state[10];
+            const simulatedDelayMinutes = state[14] ?? 0;
+            const simulatedOrigin = state[15];
+            const simulatedDest = state[16];
             if (latitude === null || longitude === null)
                 continue;
             const existingFlight = await this.prisma.flight.findUnique({
@@ -51,23 +54,28 @@ let FlightSyncService = FlightSyncService_1 = class FlightSyncService {
             });
             let flight;
             if (!existingFlight) {
-                const isArrival = Math.random() > 0.5;
-                const otherAirports = Object.keys(alerts_service_1.AIRPORT_COORDINATES).filter((code) => code !== 'REC');
-                const randomAirport = otherAirports[Math.floor(Math.random() * otherAirports.length)];
-                const origin = isArrival ? randomAirport : 'REC';
-                const destination = isArrival ? 'REC' : randomAirport;
-                const airlineInfo = (0, flights_service_1.getAirlineInfo)(callsign);
-                const now = new Date();
-                let scheduledDep;
-                let scheduledArr;
-                if (isArrival) {
-                    scheduledDep = new Date(now.getTime() - 60 * 60 * 1000);
-                    scheduledArr = new Date(now.getTime() + 60 * 60 * 1000);
+                const isArrival = simulatedDest
+                    ? simulatedDest === 'REC'
+                    : Math.random() > 0.5;
+                let origin;
+                let destination;
+                if (simulatedOrigin && simulatedDest) {
+                    origin = simulatedOrigin;
+                    destination = simulatedDest;
                 }
                 else {
-                    scheduledDep = new Date(now.getTime() - 15 * 60 * 1000);
-                    scheduledArr = new Date(now.getTime() + 90 * 60 * 1000);
+                    const otherAirports = Object.keys(alerts_service_1.AIRPORT_COORDINATES).filter((code) => code !== 'REC');
+                    const randomAirport = otherAirports[Math.floor(Math.random() * otherAirports.length)];
+                    origin = isArrival ? randomAirport : 'REC';
+                    destination = isArrival ? 'REC' : randomAirport;
                 }
+                const airlineInfo = (0, flights_service_1.getAirlineInfo)(callsign);
+                const now = new Date();
+                const baseArrivalMs = isArrival
+                    ? now.getTime() + 60 * 60 * 1000
+                    : now.getTime() + 90 * 60 * 1000;
+                const scheduledArr = new Date(baseArrivalMs - simulatedDelayMinutes * 60 * 1000);
+                const scheduledDep = new Date(now.getTime() - 60 * 60 * 1000);
                 flight = await this.prisma.flight.create({
                     data: {
                         callsign,
@@ -78,12 +86,14 @@ let FlightSyncService = FlightSyncService_1 = class FlightSyncService {
                         scheduledArr,
                     },
                 });
-                this.logger.debug(`Novo voo cadastrado e enriquecido: ${callsign} (${origin} -> ${destination})`);
+                this.logger.debug(`Novo voo cadastrado: ${callsign} (${origin} -> ${destination})${simulatedDelayMinutes > 0 ? ` | Atraso: ${simulatedDelayMinutes}min` : ''}`);
             }
             else {
                 const now = new Date();
                 const scheduledArr = existingFlight.scheduledArr;
-                const needsUpdate = !scheduledArr || (now.getTime() - new Date(scheduledArr).getTime() > 12 * 60 * 60 * 1000);
+                const needsUpdate = !scheduledArr ||
+                    now.getTime() - new Date(scheduledArr).getTime() >
+                        12 * 60 * 60 * 1000;
                 if (needsUpdate) {
                     const isArrival = existingFlight.destination === 'REC';
                     let scheduledDep;
