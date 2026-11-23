@@ -7,6 +7,7 @@ import {
   AlertTriangle,
   ChevronRight 
 } from 'lucide-react';
+import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -33,14 +34,34 @@ const statusConfig = {
 interface AirlineConfig {
   name: string;
   badgeClass: string;
+  icon?: string;
 }
 
 const airlines: Record<string, AirlineConfig> = {
-  G3: { name: 'GOL', badgeClass: 'bg-amber-500/15 text-amber-400 border-amber-500/30' },
-  AD: { name: 'AZUL', badgeClass: 'bg-sky-500/15 text-sky-400 border-sky-500/30' },
-  LA: { name: 'LATAM', badgeClass: 'bg-rose-500/15 text-rose-400 border-rose-500/30' },
-  '2Z': { name: 'VOEPASS', badgeClass: 'bg-yellow-500/15 text-yellow-400 border-yellow-500/30' },
-  O6: { name: 'AVIANCA', badgeClass: 'bg-red-500/15 text-red-400 border-red-500/30' },
+  G3: { 
+    name: 'GOL', 
+    badgeClass: 'bg-amber-500/15 text-amber-400 border-amber-500/30',
+    icon: '/airlines/gol-loops.png',
+  },
+  AD: { 
+    name: 'AZUL', 
+    badgeClass: 'bg-sky-500/15 text-sky-400 border-sky-500/30',
+    icon: '/airlines/azul-icon.png',
+  },
+  LA: { 
+    name: 'LATAM', 
+    badgeClass: 'bg-rose-500/15 text-rose-400 border-rose-500/30',
+    icon: '/airlines/latam-icon.png',
+  },
+  '2Z': { 
+    name: 'VOEPASS', 
+    badgeClass: 'bg-yellow-500/15 text-yellow-400 border-yellow-500/30',
+    icon: '/airlines/voepass-icon.png',
+  },
+  O6: { 
+    name: 'AVIANCA', 
+    badgeClass: 'bg-red-500/15 text-red-400 border-red-500/30',
+  },
 };
 
 export function AirlineBadge({ code, compact = false }: { code: string; compact?: boolean }) {
@@ -54,7 +75,20 @@ export function AirlineBadge({ code, compact = false }: { code: string; compact?
         compact ? 'h-7 px-2 text-[11px]' : 'h-8 px-2.5 text-xs'
       )}
     >
-      <Plane className={cn('shrink-0', compact ? 'h-3 w-3' : 'h-3.5 w-3.5')} />
+      {config.icon ? (
+        <Image
+          src={config.icon}
+          alt={config.name}
+          width={18}
+          height={18}
+          className={cn(
+            'object-contain shrink-0',
+            compact ? 'h-3.5 w-auto max-w-[18px]' : 'h-4 w-auto max-w-[20px]'
+          )}
+        />
+      ) : (
+        <Plane className={cn('shrink-0', compact ? 'h-3 w-3' : 'h-3.5 w-3.5')} />
+      )}
       <span>{config.name}</span>
     </div>
   );
