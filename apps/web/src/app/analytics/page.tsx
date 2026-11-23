@@ -117,10 +117,10 @@ export default function AnalyticsPage() {
         <div className="space-y-4 sm:space-y-6 p-4 sm:p-6">
           {/* Summary Cards */}
           <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-            <Card>
+            <Card className="bg-card border-border">
               <CardContent className="flex items-center gap-2.5 sm:gap-4 p-3 sm:p-4">
-                <div className="flex h-9 w-9 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-                  <Plane className="h-4 w-4 sm:h-6 sm:w-6 text-primary" />
+                <div className="flex h-9 w-9 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-lg bg-secondary">
+                  <Plane className="h-4 w-4 sm:h-6 sm:w-6 text-foreground/70" />
                 </div>
                 <div className="min-w-0">
                   <p className="text-xs sm:text-sm text-muted-foreground truncate">Total Hoje</p>
@@ -130,36 +130,36 @@ export default function AnalyticsPage() {
                 </div>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="bg-card border-border">
               <CardContent className="flex items-center gap-2.5 sm:gap-4 p-3 sm:p-4">
                 <div className="flex h-9 w-9 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-lg bg-[var(--success)]/10">
                   <TrendingUp className="h-4 w-4 sm:h-6 sm:w-6 text-[var(--success)]" />
                 </div>
                 <div className="min-w-0">
                   <p className="text-xs sm:text-sm text-muted-foreground truncate">Pontualidade</p>
-                  <p className="text-xl sm:text-2xl font-bold text-foreground truncate">
+                  <p className="text-xl sm:text-2xl font-bold text-[var(--success)] truncate">
                     {dailyStats ? `${dailyStats.onTimePercentage.toFixed(0)}%` : '--'}
                   </p>
                 </div>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="bg-card border-border">
               <CardContent className="flex items-center gap-2.5 sm:gap-4 p-3 sm:p-4">
                 <div className="flex h-9 w-9 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-lg bg-[var(--warning)]/10">
                   <Clock className="h-4 w-4 sm:h-6 sm:w-6 text-[var(--warning)]" />
                 </div>
                 <div className="min-w-0">
                   <p className="text-xs sm:text-sm text-muted-foreground truncate">Atraso Médio</p>
-                  <p className="text-xl sm:text-2xl font-bold text-foreground truncate">
+                  <p className="text-xl sm:text-2xl font-bold text-[var(--warning)] truncate">
                     {dailyStats ? `${dailyStats.averageDelay.toFixed(0)} min` : '--'}
                   </p>
                 </div>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="bg-card border-border">
               <CardContent className="flex items-center gap-2.5 sm:gap-4 p-3 sm:p-4">
-                <div className="flex h-9 w-9 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-lg bg-[var(--info)]/10">
-                  <Users className="h-4 w-4 sm:h-6 sm:w-6 text-[var(--info)]" />
+                <div className="flex h-9 w-9 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-lg bg-secondary">
+                  <Users className="h-4 w-4 sm:h-6 sm:w-6 text-foreground/70" />
                 </div>
                 <div className="min-w-0">
                   <p className="text-xs sm:text-sm text-muted-foreground truncate">Passageiros Est.</p>

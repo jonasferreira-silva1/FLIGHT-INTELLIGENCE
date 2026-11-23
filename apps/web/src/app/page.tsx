@@ -43,30 +43,30 @@ export default function Dashboard() {
           <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
             <AirTrafficRadar />
 
-            <Card className="bg-gradient-to-br from-card to-emerald-950/20 border-emerald-900/30">
+            <Card className="bg-card border-border">
               <CardHeader className="pb-2">
                 <CardTitle className="text-base sm:text-lg flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
                   Operações em Andamento
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-3 sm:gap-4">
-                    <div className="bg-background/50 rounded-lg p-3 sm:p-4 border border-border">
-                      <p className="text-2xl sm:text-3xl font-bold text-emerald-400">12</p>
+                    <div className="bg-secondary/40 rounded-lg p-3 sm:p-4 border border-border">
+                      <p className="text-2xl sm:text-3xl font-bold text-primary">12</p>
                       <p className="text-xs sm:text-sm text-muted-foreground">Em aproximação final</p>
                     </div>
-                    <div className="bg-background/50 rounded-lg p-3 sm:p-4 border border-border">
-                      <p className="text-2xl sm:text-3xl font-bold text-sky-400">8</p>
+                    <div className="bg-secondary/40 rounded-lg p-3 sm:p-4 border border-border">
+                      <p className="text-2xl sm:text-3xl font-bold text-accent">8</p>
                       <p className="text-xs sm:text-sm text-muted-foreground">Aguardando decolagem</p>
                     </div>
-                    <div className="bg-background/50 rounded-lg p-3 sm:p-4 border border-border">
-                      <p className="text-2xl sm:text-3xl font-bold text-amber-400">3</p>
+                    <div className="bg-secondary/40 rounded-lg p-3 sm:p-4 border border-border">
+                      <p className="text-2xl sm:text-3xl font-bold text-[var(--warning)]">3</p>
                       <p className="text-xs sm:text-sm text-muted-foreground">Em holding pattern</p>
                     </div>
-                    <div className="bg-background/50 rounded-lg p-3 sm:p-4 border border-border">
-                      <p className="text-2xl sm:text-3xl font-bold text-purple-400">2</p>
+                    <div className="bg-secondary/40 rounded-lg p-3 sm:p-4 border border-border">
+                      <p className="text-2xl sm:text-3xl font-bold text-foreground">2</p>
                       <p className="text-xs sm:text-sm text-muted-foreground">Pistas ativas</p>
                     </div>
                   </div>
@@ -78,7 +78,7 @@ export default function Dashboard() {
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
                         <span className="text-xs sm:text-sm text-muted-foreground">Pista 18/36</span>
-                        <span className="text-xs sm:text-sm font-medium text-emerald-400">Operacional</span>
+                        <span className="text-xs sm:text-sm font-medium text-primary">Operacional</span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-xs sm:text-sm text-muted-foreground">Visibilidade</span>

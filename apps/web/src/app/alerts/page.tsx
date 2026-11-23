@@ -127,10 +127,10 @@ export default function AlertsPage() {
         <div className="space-y-4 sm:space-y-6 p-4 sm:p-6">
           {/* Summary Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-            <Card>
+            <Card className="bg-card border-border">
               <CardContent className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4">
-                <div className="flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-                  <Bell className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+                <div className="flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-lg bg-secondary">
+                  <Bell className="h-5 w-5 sm:h-6 sm:w-6 text-foreground/70" />
                 </div>
                 <div>
                   <p className="text-xs sm:text-sm text-muted-foreground">Total de Alertas</p>
@@ -138,21 +138,21 @@ export default function AlertsPage() {
                 </div>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="bg-card border-border">
               <CardContent className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4">
-                <div className="flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-lg bg-destructive/10">
-                  <AlertTriangle className="h-5 w-5 sm:h-6 sm:w-6 text-destructive" />
+                <div className={`flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-lg ${unreadCount > 0 ? 'bg-destructive/10 text-destructive' : 'bg-secondary text-foreground/70'}`}>
+                  <AlertTriangle className="h-5 w-5 sm:h-6 sm:w-6" />
                 </div>
                 <div>
                   <p className="text-xs sm:text-sm text-muted-foreground">Não Lidos</p>
-                  <p className="text-xl sm:text-2xl font-bold text-foreground">{unreadCount}</p>
+                  <p className={`text-xl sm:text-2xl font-bold ${unreadCount > 0 ? 'text-destructive' : 'text-foreground'}`}>{unreadCount}</p>
                 </div>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="bg-card border-border">
               <CardContent className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4">
-                <div className="flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-lg bg-[var(--success)]/10">
-                  <Check className="h-5 w-5 sm:h-6 sm:w-6 text-[var(--success)]" />
+                <div className="flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-lg bg-secondary">
+                  <Check className="h-5 w-5 sm:h-6 sm:w-6 text-foreground/70" />
                 </div>
                 <div>
                   <p className="text-xs sm:text-sm text-muted-foreground">Alertas Hoje</p>

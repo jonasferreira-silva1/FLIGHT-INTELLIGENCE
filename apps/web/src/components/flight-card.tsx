@@ -21,13 +21,13 @@ interface FlightCardProps {
 }
 
 const statusConfig = {
-  scheduled: { label: 'Programado', color: 'bg-muted text-muted-foreground' },
-  boarding: { label: 'Embarque', color: 'bg-[var(--info)] text-white' },
-  departed: { label: 'Decolou', color: 'bg-accent text-accent-foreground' },
-  airborne: { label: 'Em Voo', color: 'bg-[var(--success)] text-white' },
-  landed: { label: 'Pousou', color: 'bg-primary text-primary-foreground' },
-  cancelled: { label: 'Cancelado', color: 'bg-destructive text-destructive-foreground' },
-  delayed: { label: 'Atrasado', color: 'bg-[var(--warning)] text-white' },
+  scheduled: { label: 'Programado', color: 'bg-muted/80 text-muted-foreground border-border' },
+  boarding: { label: 'Embarque', color: 'bg-[var(--info)]/15 text-[var(--info)] border-[var(--info)]/30' },
+  departed: { label: 'Decolou', color: 'bg-accent/15 text-accent border-accent/30' },
+  airborne: { label: 'Em Voo', color: 'bg-[var(--success)]/15 text-[var(--success)] border-[var(--success)]/30' },
+  landed: { label: 'Pousou', color: 'bg-primary/15 text-primary border-primary/30' },
+  cancelled: { label: 'Cancelado', color: 'bg-destructive/15 text-destructive border-destructive/30' },
+  delayed: { label: 'Atrasado', color: 'bg-[var(--warning)]/15 text-[var(--warning)] border-[var(--warning)]/30' },
 };
 
 const airlineLogos: Record<string, string> = {
@@ -64,7 +64,7 @@ export function FlightCard({ flight, compact = false, onClick }: FlightCardProps
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Badge className={cn('text-xs', status.color)}>
+            <Badge variant="outline" className={cn('text-xs font-medium border', status.color)}>
               {status.label}
             </Badge>
             <ChevronRight className="h-4 w-4 text-muted-foreground" />
@@ -93,7 +93,7 @@ export function FlightCard({ flight, compact = false, onClick }: FlightCardProps
               <p className="text-sm text-muted-foreground">{flight.airline}</p>
             </div>
           </div>
-          <Badge className={cn('text-xs', status.color)}>
+          <Badge variant="outline" className={cn('text-xs font-medium border', status.color)}>
             {status.label}
           </Badge>
         </div>
