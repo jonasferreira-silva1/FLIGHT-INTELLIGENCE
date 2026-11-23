@@ -16,19 +16,19 @@ export function LiveFeed() {
     <div className="flex h-full flex-col">
       <Tabs defaultValue="all" className="flex h-full flex-col">
         <TabsList className="grid w-full grid-cols-3 bg-secondary">
-          <TabsTrigger value="all">Todos ({flights.length})</TabsTrigger>
-          <TabsTrigger value="arrivals" className="flex items-center gap-1.5">
+          <TabsTrigger value="all" className="text-xs sm:text-sm">Todos ({flights.length})</TabsTrigger>
+          <TabsTrigger value="arrivals" className="flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm">
             <PlaneLanding className="h-3.5 w-3.5" />
-            Chegadas ({arrivals.length})
+            <span className="hidden xs:inline">Chegadas</span> ({arrivals.length})
           </TabsTrigger>
-          <TabsTrigger value="departures" className="flex items-center gap-1.5">
+          <TabsTrigger value="departures" className="flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm">
             <PlaneTakeoff className="h-3.5 w-3.5" />
-            Partidas ({departures.length})
+            <span className="hidden xs:inline">Partidas</span> ({departures.length})
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="all" className="mt-4 flex-1">
-          <ScrollArea className="h-[500px] pr-4">
+          <ScrollArea className="h-[360px] sm:h-[450px] lg:h-[500px] pr-2 sm:pr-4">
             <div className="space-y-3">
               {flights.map((flight) => (
                 <FlightCard 
@@ -43,7 +43,7 @@ export function LiveFeed() {
         </TabsContent>
 
         <TabsContent value="arrivals" className="mt-4 flex-1">
-          <ScrollArea className="h-[500px] pr-4">
+          <ScrollArea className="h-[360px] sm:h-[450px] lg:h-[500px] pr-2 sm:pr-4">
             <div className="space-y-3">
               {arrivals.map((flight) => (
                 <FlightCard 
@@ -58,7 +58,7 @@ export function LiveFeed() {
         </TabsContent>
 
         <TabsContent value="departures" className="mt-4 flex-1">
-          <ScrollArea className="h-[500px] pr-4">
+          <ScrollArea className="h-[360px] sm:h-[450px] lg:h-[500px] pr-2 sm:pr-4">
             <div className="space-y-3">
               {departures.map((flight) => (
                 <FlightCard 

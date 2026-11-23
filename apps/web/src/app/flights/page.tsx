@@ -84,10 +84,10 @@ export default function FlightsPage() {
     <div className="flex min-h-screen bg-background">
       <Sidebar />
 
-      <main className="ml-64 flex-1">
+      <main className="flex-1 w-full min-w-0 lg:ml-64">
         <Header title="Voos" subtitle="Lista completa de voos do Aeroporto do Recife" />
 
-        <div className="space-y-6 p-6">
+        <div className="space-y-4 sm:space-y-6 p-4 sm:p-6">
           {/* Filtros */}
           <Card>
             <CardHeader className="pb-3">
@@ -97,7 +97,7 @@ export default function FlightsPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-wrap items-center gap-4">
+              <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 sm:gap-4">
                 <div className="relative flex-1 min-w-[200px]">
                   <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
@@ -109,37 +109,39 @@ export default function FlightsPage() {
                   />
                 </div>
 
-                <Select
-                  value={statusFilter}
-                  onValueChange={(v) => setStatusFilter(v as FlightStatus | 'all')}
-                >
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {statusOptions.map((o) => (
-                      <SelectItem key={o.value} value={o.value}>
-                        {o.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                  <Select
+                    value={statusFilter}
+                    onValueChange={(v) => setStatusFilter(v as FlightStatus | 'all')}
+                  >
+                    <SelectTrigger className="w-full sm:w-[180px]">
+                      <SelectValue placeholder="Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {statusOptions.map((o) => (
+                        <SelectItem key={o.value} value={o.value}>
+                          {o.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
 
-                <Select value={directionFilter} onValueChange={setDirectionFilter}>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Direção" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {directionOptions.map((o) => (
-                      <SelectItem key={o.value} value={o.value}>
-                        {o.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  <Select value={directionFilter} onValueChange={setDirectionFilter}>
+                    <SelectTrigger className="w-full sm:w-[180px]">
+                      <SelectValue placeholder="Direção" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {directionOptions.map((o) => (
+                        <SelectItem key={o.value} value={o.value}>
+                          {o.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
                 {hasActiveFilters && (
-                  <Button variant="ghost" size="sm" onClick={clearFilters}>
+                  <Button variant="ghost" size="sm" onClick={clearFilters} className="self-start sm:self-auto">
                     <X className="mr-1 h-4 w-4" />
                     Limpar filtros
                   </Button>
@@ -147,7 +149,7 @@ export default function FlightsPage() {
               </div>
 
               {hasActiveFilters && (
-                <div className="mt-4 flex items-center gap-2">
+                <div className="mt-4 flex flex-wrap items-center gap-2">
                   <span className="text-sm text-muted-foreground">Filtros ativos:</span>
                   {searchQuery && (
                     <Badge variant="secondary">Busca: {searchQuery}</Badge>

@@ -111,59 +111,59 @@ export default function AnalyticsPage() {
     <div className="flex min-h-screen bg-background">
       <Sidebar />
 
-      <main className="ml-64 flex-1">
+      <main className="flex-1 w-full min-w-0 lg:ml-64">
         <Header title="Analytics" subtitle="Estatísticas e análises do Aeroporto do Recife" />
 
-        <div className="space-y-6 p-6">
+        <div className="space-y-4 sm:space-y-6 p-4 sm:p-6">
           {/* Summary Cards */}
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
             <Card>
-              <CardContent className="flex items-center gap-4 p-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-                  <Plane className="h-6 w-6 text-primary" />
+              <CardContent className="flex items-center gap-2.5 sm:gap-4 p-3 sm:p-4">
+                <div className="flex h-9 w-9 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                  <Plane className="h-4 w-4 sm:h-6 sm:w-6 text-primary" />
                 </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Total Hoje</p>
-                  <p className="text-2xl font-bold text-foreground">
+                <div className="min-w-0">
+                  <p className="text-xs sm:text-sm text-muted-foreground truncate">Total Hoje</p>
+                  <p className="text-xl sm:text-2xl font-bold text-foreground truncate">
                     {dailyStats?.totalFlights ?? '--'}
                   </p>
                 </div>
               </CardContent>
             </Card>
             <Card>
-              <CardContent className="flex items-center gap-4 p-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[var(--success)]/10">
-                  <TrendingUp className="h-6 w-6 text-[var(--success)]" />
+              <CardContent className="flex items-center gap-2.5 sm:gap-4 p-3 sm:p-4">
+                <div className="flex h-9 w-9 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-lg bg-[var(--success)]/10">
+                  <TrendingUp className="h-4 w-4 sm:h-6 sm:w-6 text-[var(--success)]" />
                 </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Pontualidade</p>
-                  <p className="text-2xl font-bold text-foreground">
+                <div className="min-w-0">
+                  <p className="text-xs sm:text-sm text-muted-foreground truncate">Pontualidade</p>
+                  <p className="text-xl sm:text-2xl font-bold text-foreground truncate">
                     {dailyStats ? `${dailyStats.onTimePercentage.toFixed(0)}%` : '--'}
                   </p>
                 </div>
               </CardContent>
             </Card>
             <Card>
-              <CardContent className="flex items-center gap-4 p-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[var(--warning)]/10">
-                  <Clock className="h-6 w-6 text-[var(--warning)]" />
+              <CardContent className="flex items-center gap-2.5 sm:gap-4 p-3 sm:p-4">
+                <div className="flex h-9 w-9 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-lg bg-[var(--warning)]/10">
+                  <Clock className="h-4 w-4 sm:h-6 sm:w-6 text-[var(--warning)]" />
                 </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Atraso Médio</p>
-                  <p className="text-2xl font-bold text-foreground">
+                <div className="min-w-0">
+                  <p className="text-xs sm:text-sm text-muted-foreground truncate">Atraso Médio</p>
+                  <p className="text-xl sm:text-2xl font-bold text-foreground truncate">
                     {dailyStats ? `${dailyStats.averageDelay.toFixed(0)} min` : '--'}
                   </p>
                 </div>
               </CardContent>
             </Card>
             <Card>
-              <CardContent className="flex items-center gap-4 p-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[var(--info)]/10">
-                  <Users className="h-6 w-6 text-[var(--info)]" />
+              <CardContent className="flex items-center gap-2.5 sm:gap-4 p-3 sm:p-4">
+                <div className="flex h-9 w-9 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-lg bg-[var(--info)]/10">
+                  <Users className="h-4 w-4 sm:h-6 sm:w-6 text-[var(--info)]" />
                 </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Passageiros Est.</p>
-                  <p className="text-2xl font-bold text-foreground">
+                <div className="min-w-0">
+                  <p className="text-xs sm:text-sm text-muted-foreground truncate">Passageiros Est.</p>
+                  <p className="text-xl sm:text-2xl font-bold text-foreground truncate">
                     {dailyStats
                       ? new Intl.NumberFormat('pt-BR', { notation: 'compact' }).format(dailyStats.passengers)
                       : '--'}
@@ -174,7 +174,7 @@ export default function AnalyticsPage() {
           </div>
 
           {/* Charts Row 1 */}
-          <div className="grid gap-6 lg:grid-cols-2">
+          <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
             {/* Tráfego por hora */}
             <Card>
               <CardHeader>
@@ -228,7 +228,7 @@ export default function AnalyticsPage() {
           </div>
 
           {/* Charts Row 2 */}
-          <div className="grid gap-6 lg:grid-cols-2">
+          <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
             {/* Ranking companhias */}
             <Card>
               <CardHeader>
@@ -311,7 +311,7 @@ export default function AnalyticsPage() {
                 ))}
 
                 {derivedRouteStats.length === 0 && (
-                  <p className="col-span-4 text-center text-sm text-muted-foreground py-4">
+                  <p className="col-span-full text-center text-sm text-muted-foreground py-4">
                     Sem dados de rotas disponíveis ainda.
                   </p>
                 )}

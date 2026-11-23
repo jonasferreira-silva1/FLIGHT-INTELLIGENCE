@@ -40,6 +40,7 @@ interface FlightStore {
   selectedFlight: Flight | null;
   isConnected: boolean;
   lastUpdate: string | null;
+  sidebarOpen: boolean;
 
   // REST Actions
   loadFlights: () => Promise<void>;
@@ -49,6 +50,7 @@ interface FlightStore {
 
   // UI Actions
   setSelectedFlight: (flight: Flight | null) => void;
+  setSidebarOpen: (open: boolean) => void;
   markAlertRead: (alertId: string) => void;
   markAllAlertsRead: () => void;
   clearAlerts: () => void;
@@ -71,6 +73,7 @@ export const useFlightStore = create<FlightStore>((set, get) => ({
   selectedFlight: null,
   isConnected: false,
   lastUpdate: null,
+  sidebarOpen: false,
 
   loadFlights: async () => {
     const data = await api.getFlights();
@@ -97,6 +100,7 @@ export const useFlightStore = create<FlightStore>((set, get) => ({
   },
 
   setSelectedFlight: (flight) => set({ selectedFlight: flight }),
+  setSidebarOpen: (open) => set({ sidebarOpen: open }),
 
   markAlertRead: (alertId) =>
     set((state) => ({

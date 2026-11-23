@@ -1,6 +1,6 @@
 'use client';
 
-import { Bell, Search, RefreshCw, Clock, PlaneLanding, PlaneTakeoff, MapPin, XCircle, Check } from 'lucide-react';
+import { Bell, Search, RefreshCw, Clock, PlaneLanding, PlaneTakeoff, MapPin, XCircle, Check, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useFlightStore } from '@/lib/store';
@@ -34,7 +34,7 @@ const alertColors: Record<FlightAlert['type'], string> = {
 };
 
 export function Header({ title, subtitle }: HeaderProps) {
-  const { lastUpdate, alerts, refreshData, markAlertRead } = useFlightStore();
+  const { lastUpdate, alerts, refreshData, markAlertRead, setSidebarOpen } = useFlightStore();
   const unreadAlerts = alerts.filter((a) => !a.read).length;
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -60,20 +60,31 @@ export function Header({ title, subtitle }: HeaderProps) {
   };
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-background/95 px-6 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div>
-        <h1 className="text-xl font-semibold text-foreground">{title}</h1>
-        {subtitle && <p className="text-sm text-muted-foreground">{subtitle}</p>}
+    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-background/95 px-4 sm:px-6 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="lg:hidden -ml-1 h-9 w-9 shrink-0 text-muted-foreground hover:text-foreground"
+          onClick={() => setSidebarOpen(true)}
+          aria-label="Abrir menu de navegação"
+        >
+          <Menu className="h-5 w-5" />
+        </Button>
+        <div className="min-w-0">
+          <h1 className="text-lg sm:text-xl font-semibold text-foreground truncate">{title}</h1>
+          {subtitle && <p className="text-xs sm:text-sm text-muted-foreground truncate hidden sm:block">{subtitle}</p>}
+        </div>
       </div>
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2 sm:gap-4 shrink-0">
         {/* Search */}
         <div className="relative hidden md:block">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             type="search"
             placeholder="Buscar voo..."
-            className="w-64 bg-secondary pl-9"
+            className="w-48 lg:w-64 bg-secondary pl-9 text-sm"
           />
         </div>
 
@@ -93,6 +104,7 @@ export function Header({ title, subtitle }: HeaderProps) {
           size="icon"
           onClick={() => refreshData()}
           className="h-9 w-9"
+          title="Atualizar dados"
         >
           <RefreshCw className="h-4 w-4" />
         </Button>
@@ -116,7 +128,7 @@ export function Header({ title, subtitle }: HeaderProps) {
 
           {/* Dropdown panel */}
           {open && (
-            <div className="absolute right-0 top-11 z-50 w-80 rounded-xl border border-border bg-card shadow-2xl">
+            <div className="absolute -right-2 sm:right-0 top-11 z-50 w-[calc(100vw-2rem)] sm:w-80 max-w-sm rounded-xl border border-border bg-card shadow-2xl">
               {/* Header */}
               <div className="flex items-center justify-between border-b border-border px-4 py-3">
                 <span className="text-sm font-semibold text-foreground">Notificações</span>

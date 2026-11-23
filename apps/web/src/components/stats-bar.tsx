@@ -46,7 +46,7 @@ export function StatsBar() {
     {
       label: 'Passageiros Est.',
       value: dailyStats 
-        ? new Intl.NumberFormat('pt-BR').format(dailyStats.passengers)
+        ? new Intl.NumberFormat('pt-BR', { notation: 'compact' }).format(dailyStats.passengers)
         : '--',
       icon: Users,
       color: 'text-[var(--info)]',
@@ -62,16 +62,16 @@ export function StatsBar() {
   ];
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+    <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-6">
       {stats.map((stat) => (
         <Card key={stat.label} className="bg-card">
-          <CardContent className="flex items-center gap-4 p-4">
-            <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${stat.bgColor}`}>
-              <stat.icon className={`h-5 w-5 ${stat.color}`} />
+          <CardContent className="flex items-center gap-2.5 sm:gap-4 p-3 sm:p-4">
+            <div className={`flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-lg ${stat.bgColor}`}>
+              <stat.icon className={`h-4 w-4 sm:h-5 sm:w-5 ${stat.color}`} />
             </div>
-            <div>
-              <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-              <p className="text-xs text-muted-foreground">{stat.label}</p>
+            <div className="min-w-0">
+              <p className="text-xl sm:text-2xl font-bold text-foreground truncate">{stat.value}</p>
+              <p className="text-[11px] sm:text-xs text-muted-foreground truncate">{stat.label}</p>
             </div>
           </CardContent>
         </Card>

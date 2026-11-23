@@ -121,51 +121,51 @@ export default function AlertsPage() {
     <div className="flex min-h-screen bg-background">
       <Sidebar />
 
-      <main className="ml-64 flex-1">
+      <main className="flex-1 w-full min-w-0 lg:ml-64">
         <Header title="Alertas" subtitle="Central de notificações em tempo real" />
 
-        <div className="space-y-6 p-6">
+        <div className="space-y-4 sm:space-y-6 p-4 sm:p-6">
           {/* Summary Cards */}
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
             <Card>
-              <CardContent className="flex items-center gap-4 p-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-                  <Bell className="h-6 w-6 text-primary" />
+              <CardContent className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4">
+                <div className="flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                  <Bell className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Total de Alertas</p>
-                  <p className="text-2xl font-bold text-foreground">{alerts.length}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">Total de Alertas</p>
+                  <p className="text-xl sm:text-2xl font-bold text-foreground">{alerts.length}</p>
                 </div>
               </CardContent>
             </Card>
             <Card>
-              <CardContent className="flex items-center gap-4 p-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-destructive/10">
-                  <AlertTriangle className="h-6 w-6 text-destructive" />
+              <CardContent className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4">
+                <div className="flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-lg bg-destructive/10">
+                  <AlertTriangle className="h-5 w-5 sm:h-6 sm:w-6 text-destructive" />
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Não Lidos</p>
-                  <p className="text-2xl font-bold text-foreground">{unreadCount}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">Não Lidos</p>
+                  <p className="text-xl sm:text-2xl font-bold text-foreground">{unreadCount}</p>
                 </div>
               </CardContent>
             </Card>
             <Card>
-              <CardContent className="flex items-center gap-4 p-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[var(--success)]/10">
-                  <Check className="h-6 w-6 text-[var(--success)]" />
+              <CardContent className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4">
+                <div className="flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-lg bg-[var(--success)]/10">
+                  <Check className="h-5 w-5 sm:h-6 sm:w-6 text-[var(--success)]" />
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Alertas Hoje</p>
-                  <p className="text-2xl font-bold text-foreground">{todayAlerts.length}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">Alertas Hoje</p>
+                  <p className="text-xl sm:text-2xl font-bold text-foreground">{todayAlerts.length}</p>
                 </div>
               </CardContent>
             </Card>
           </div>
 
           {/* Actions */}
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-foreground">Alertas Não Lidos</h2>
-            <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <h2 className="text-base sm:text-lg font-semibold text-foreground">Alertas Não Lidos</h2>
+            <div className="flex flex-wrap gap-2">
               <Button
                 variant="outline"
                 size="sm"

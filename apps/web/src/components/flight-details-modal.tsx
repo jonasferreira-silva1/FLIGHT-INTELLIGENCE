@@ -93,7 +93,7 @@ export function FlightDetailsModal() {
 
   return (
     <Dialog open={!!selectedFlight} onOpenChange={() => setSelectedFlight(null)}>
-      <DialogContent className="max-w-lg bg-card">
+      <DialogContent className="max-w-lg bg-card max-h-[90vh] overflow-y-auto w-[95vw] sm:w-full p-4 sm:p-6">
         <DialogHeader>
           <div className="flex items-center justify-between">
             <DialogTitle className="flex items-center gap-3">
