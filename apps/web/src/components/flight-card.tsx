@@ -30,13 +30,35 @@ const statusConfig = {
   delayed: { label: 'Atrasado', color: 'bg-[var(--warning)]/15 text-[var(--warning)] border-[var(--warning)]/30' },
 };
 
-const airlineLogos: Record<string, string> = {
-  G3: 'GOL',
-  AD: 'AZUL',
-  LA: 'LATAM',
-  O6: 'AVN',
-  '2Z': 'VP',
+interface AirlineConfig {
+  name: string;
+  badgeClass: string;
+}
+
+const airlines: Record<string, AirlineConfig> = {
+  G3: { name: 'GOL', badgeClass: 'bg-amber-500/15 text-amber-400 border-amber-500/30' },
+  AD: { name: 'AZUL', badgeClass: 'bg-sky-500/15 text-sky-400 border-sky-500/30' },
+  LA: { name: 'LATAM', badgeClass: 'bg-rose-500/15 text-rose-400 border-rose-500/30' },
+  '2Z': { name: 'VOEPASS', badgeClass: 'bg-yellow-500/15 text-yellow-400 border-yellow-500/30' },
+  O6: { name: 'AVIANCA', badgeClass: 'bg-red-500/15 text-red-400 border-red-500/30' },
 };
+
+export function AirlineBadge({ code, compact = false }: { code: string; compact?: boolean }) {
+  const config = airlines[code] || { name: code, badgeClass: 'bg-secondary text-foreground/80 border-border' };
+
+  return (
+    <div
+      className={cn(
+        'inline-flex items-center gap-1.5 rounded-md border font-sans font-bold tracking-wider select-none shrink-0 transition-colors',
+        config.badgeClass,
+        compact ? 'h-7 px-2 text-[11px]' : 'h-8 px-2.5 text-xs'
+      )}
+    >
+      <Plane className={cn('shrink-0', compact ? 'h-3 w-3' : 'h-3.5 w-3.5')} />
+      <span>{config.name}</span>
+    </div>
+  );
+}
 
 export function FlightCard({ flight, compact = false, onClick }: FlightCardProps) {
   const status = statusConfig[flight.status] ?? { label: flight.status, color: 'bg-muted text-muted-foreground' };
@@ -50,21 +72,19 @@ export function FlightCard({ flight, compact = false, onClick }: FlightCardProps
         onClick={onClick}
       >
         <CardContent className="flex items-center justify-between p-3">
-          <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded bg-secondary text-xs font-bold text-foreground">
-              {airlineLogos[flight.airlineCode] || flight.airlineCode}
-            </div>
-            <div>
-              <p className="font-mono text-sm font-medium text-foreground">
+          <div className="flex items-center gap-3 min-w-0">
+            <AirlineBadge code={flight.airlineCode} compact />
+            <div className="min-w-0">
+              <p className="font-mono text-sm font-medium text-foreground truncate">
                 {flight.callsign}
               </p>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-muted-foreground truncate font-sans">
                 {flight.origin} → {flight.destination}
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Badge variant="outline" className={cn('text-xs font-medium border', status.color)}>
+          <div className="flex items-center gap-2 shrink-0">
+            <Badge variant="outline" className={cn('text-xs font-medium border font-sans', status.color)}>
               {status.label}
             </Badge>
             <ChevronRight className="h-4 w-4 text-muted-foreground" />
@@ -82,18 +102,16 @@ export function FlightCard({ flight, compact = false, onClick }: FlightCardProps
       <CardContent className="p-4">
         {/* Header */}
         <div className="mb-3 flex items-start justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary text-sm font-bold text-foreground">
-              {airlineLogos[flight.airlineCode] || flight.airlineCode}
-            </div>
-            <div>
-              <p className="font-mono text-lg font-semibold text-foreground">
+          <div className="flex items-center gap-3 min-w-0">
+            <AirlineBadge code={flight.airlineCode} />
+            <div className="min-w-0">
+              <p className="font-mono text-lg font-semibold text-foreground truncate">
                 {flight.callsign}
               </p>
-              <p className="text-sm text-muted-foreground">{flight.airline}</p>
+              <p className="text-sm text-muted-foreground truncate font-sans">{flight.airline}</p>
             </div>
           </div>
-          <Badge variant="outline" className={cn('text-xs font-medium border', status.color)}>
+          <Badge variant="outline" className={cn('text-xs font-medium border font-sans shrink-0', status.color)}>
             {status.label}
           </Badge>
         </div>

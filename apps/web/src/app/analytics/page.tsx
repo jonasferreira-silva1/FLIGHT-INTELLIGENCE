@@ -242,6 +242,7 @@ export default function AnalyticsPage() {
                       <XAxis type="number" tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }} />
                       <YAxis type="category" dataKey="code" tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }} width={50} />
                       <Tooltip
+                        cursor={false}
                         contentStyle={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: '8px' }}
                         formatter={(value, _, props) => [`${value} voos`, props.payload.name]}
                       />
