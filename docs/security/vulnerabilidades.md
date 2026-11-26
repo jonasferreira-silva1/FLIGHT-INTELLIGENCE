@@ -102,4 +102,30 @@ stateDiagram-v2
 | :--- | :---: | :--- | :--- |
 | 23/11/2026 | `SEC-000` | Correção de falha de lint no CI (`approachKey` não utilizado) liberando a base de testes automatizados. | Jonas / `0ef6d51` |
 | 26/11/2026 | Todos | Criação formal da Matriz Viva de Riscos e abertura dos itens `SEC-001` a `SEC-006`. | Equipe DevSecOps |
-| 26/11/2026 | `SEC-002` | Hardening de Infraestrutura: restrição de portas para `127.0.0.1`, isolamento na rede `flight-network`, autenticação no Redis e criação do `.env.example`. | Equipe DevSecOps |
+| 26/11/2026 | `SEC-002` | Hardening de Infraestrutura: restrição de portas para `127.0.0.1`, isolamento na rede `flight-network`, autenticação no Redis e criação do `.env.example`. | Equipe DevSecOps / `43f8592` |
+| 26/11/2026 | `SEC-002` | Refatoração de Segurança Fail-Closed: remoção de fallback de senhas, validação estrita com `:?` e `no-new-privileges` global. | Equipe DevSecOps / `d2eec25` |
+
+---
+
+## 5. Registro de Evidências Técnicas (Hardening & Fail-Closed)
+
+### Evidência 1: Histórico de Alterações de Senhas (`git log -S`)
+```text
+$ git log -S"rec_secure_pass" --oneline
+d2eec25 fix(infra): aplicar politica fail-closed nas credenciais e no-new-privileges global (SEC-002)
+43f8592 feat(infra): aplicar hardening no docker-compose e isolamento seguro de segredos (SEC-002)
+```
+* **Conclusão:** O commit `43f8592` introduziu a variável com fallback padrão (`:-`), e o commit `d2eec25` removeu a string completamente, instituindo a política *Fail-Closed*.
+
+### Evidência 2: Teste de Fail-Closed no Docker Compose
+* **Sem arquivo `.env` (ou com `.env` vazio gerado pelo `.env.example`):**
+  ```powershell
+  PS C:\DEV\aeroport\FLIGHT-INTELLIGENCE> docker compose config
+  error while interpolating services.api.environment.[]: required variable POSTGRES_PASSWORD is missing a value: Defina POSTGRES_PASSWORD no arquivo .env
+  ```
+  *Código de saída:* `1` (Abortado — o sistema se recusa a subir sem variáveis definidas).
+* **Com `.env` preenchido via CSPRNG (Hexadecimal seguro):**
+  ```powershell
+  PS C:\DEV\aeroport\FLIGHT-INTELLIGENCE> docker compose config -q
+  # Exit code: 0 (Sucesso — configuração validada sem expor senhas no código)
+  ```
