@@ -34,7 +34,7 @@ stateDiagram-v2
 | ID | Componente / Onde | Descrição do Risco | OWASP Top 10 | Severidade | Status | Mitigação Planejada |
 | :--- | :--- | :--- | :--- | :---: | :---: | :--- |
 | **`SEC-001`** | `apps/api/src/main.ts` | CORS aberto para qualquer origem (`*`) e ausência de cabeçalhos HTTP defensivos (sem `helmet`). | A05:2021 Security Misconfiguration | **Média** | `Aberto` | Restringir CORS à URL do frontend e instalar middleware `helmet`. |
-| **`SEC-002`** | `docker-compose.yml` | Portas do PostgreSQL (`5432`) e Redis (`6379`) expostas no host; credenciais padrão (`rec:rec`) em texto puro; Redis sem senha. | A07:2021 Identification & Auth Failures | **Alta** | `Aberto` | Remover mapeamento público de portas, configurar `requirepass` no Redis e migrar segredos para `.env`. |
+| **`SEC-002`** | `docker-compose.yml` | Portas do PostgreSQL (`5432`) e Redis (`6379`) expostas no host; credenciais padrão (`rec:rec`) em texto puro; Redis sem senha. | A07:2021 Identification & Auth Failures | **Alta** | `Mitigado` | Portas vinculadas a `127.0.0.1`, rede isolada `flight-network`, Redis com `--requirepass`, `no-new-privileges` e `.env.example`. |
 | **`SEC-003`** | `apps/ml/Dockerfile` / `main.py` | Container FastAPI executando como usuário `root` (UID 0) com desserialização de modelos via `joblib.load()`. | A08:2021 Software & Data Integrity | **Alta** | `Aberto` | Criar usuário sem privilégios (`appuser`) no Dockerfile e restringir permissões no diretório `/app`. |
 | **`SEC-004`** | Monorepo (`package.json`) | 239 vulnerabilidades em dependências de terceiros identificadas via `pnpm audit` (8 críticas, 105 altas). | A06:2021 Vulnerable & Outdated Components | **Alta** | `Aberto` | Executar auditoria direcionada (SCA), isolar dependências de dev/build e atualizar pacotes com patches. |
 | **`SEC-005`** | `.github/workflows/ci.yml` | Ausência de Security Gates automatizados no pipeline (sem SAST, SCA e Secret Scanning). | A05:2021 Security Misconfiguration | **Média** | `Aberto` | Adicionar jobs no GitHub Actions com Gitleaks (segredos), Semgrep (SAST) e pnpm audit/Trivy (SCA). |
@@ -99,3 +99,4 @@ stateDiagram-v2
 | :--- | :---: | :--- | :--- |
 | 23/11/2026 | `SEC-000` | Correção de falha de lint no CI (`approachKey` não utilizado) liberando a base de testes automatizados. | Jonas / `0ef6d51` |
 | 26/11/2026 | Todos | Criação formal da Matriz Viva de Riscos e abertura dos itens `SEC-001` a `SEC-006`. | Equipe DevSecOps |
+| 26/11/2026 | `SEC-002` | Hardening de Infraestrutura: restrição de portas para `127.0.0.1`, isolamento na rede `flight-network`, autenticação no Redis e criação do `.env.example`. | Equipe DevSecOps |

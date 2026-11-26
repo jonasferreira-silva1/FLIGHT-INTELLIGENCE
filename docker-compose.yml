@@ -12,6 +12,8 @@ services:
       # WebSocket: o browser do usuário conecta via localhost (não via rede interna Docker)
       - NEXT_PUBLIC_API_WS_URL=http://localhost:3001
     restart: unless-stopped
+    networks:
+      - flight-network
     depends_on:
       api:
         condition: service_started
@@ -24,47 +26,72 @@ services:
       - "3001:3001"
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://rec:rec@db:5432/rec_flight?schema=public
-      - REDIS_URL=redis://cache:6379
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-rec}:${POSTGRES_PASSWORD:-rec_secure_pass_2026}@db:5432/${POSTGRES_DB:-rec_flight}?schema=public
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-rec_redis_secure_pass}@cache:6379
       - PORT=3001
       - ML_SERVICE_URL=http://ml:8000
     restart: unless-stopped
+    networks:
+      - flight-network
     depends_on:
       db:
         condition: service_healthy
       cache:
-        condition: service_started
+        condition: service_healthy
 
   ml:
     build:
       context: ./apps/ml
       dockerfile: Dockerfile
+    # Exposição estrita em loopback (127.0.0.1) para evitar escuta pública em 0.0.0.0
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
     restart: unless-stopped
+    networks:
+      - flight-network
 
   cache:
     image: redis:7-alpine
+    # Exposição estrita em loopback (127.0.0.1) para depuração local segura
     ports:
-      - "6379:6379"
+      - "127.0.0.1:6379:6379"
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD:-rec_redis_secure_pass}"]
+    security_opt:
+      - no-new-privileges:true
     restart: unless-stopped
+    networks:
+      - flight-network
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a ${REDIS_PASSWORD:-rec_redis_secure_pass} ping | grep PONG"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   db:
     image: postgres:16-alpine
+    # Exposição estrita em loopback (127.0.0.1) para ferramentas de banco locais
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     environment:
-      - POSTGRES_USER=rec
-      - POSTGRES_PASSWORD=rec
-      - POSTGRES_DB=rec_flight
+      - POSTGRES_USER=${POSTGRES_USER:-rec}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-rec_secure_pass_2026}
+      - POSTGRES_DB=${POSTGRES_DB:-rec_flight}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    security_opt:
+      - no-new-privileges:true
     restart: unless-stopped
+    networks:
+      - flight-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U rec -d rec_flight"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-rec} -d ${POSTGRES_DB:-rec_flight}"]
       interval: 5s
       timeout: 5s
       retries: 10
+
+networks:
+  flight-network:
+    driver: bridge
 
 volumes:
   postgres_data:
