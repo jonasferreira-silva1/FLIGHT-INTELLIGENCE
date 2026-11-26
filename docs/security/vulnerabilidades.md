@@ -57,10 +57,13 @@ stateDiagram-v2
 ### `SEC-002`: Credenciais Expostas e Portas Públicas de Infraestrutura
 * **Local:** `docker-compose.yml:27,48-58`
 * **Impacto:** Caso a máquina virtual ou droplet em nuvem tenha a porta 5432 ou 6379 exposta na interface de rede pública (`0.0.0.0`), atacantes conseguem varreduras automatizadas, acesso ao banco de dados e injeção de dados no Redis.
-* **Critério de Aceite da Correção:**
-  1. Alterar portas para escuta interna exclusiva na rede virtual do Docker (`networks: - flight-network`), removendo o bloco `ports: 5432:5432` em produção.
-  2. Criar `.env.example` e documentar a rotação de senhas.
-  3. Configurar comando `--requirepass ${REDIS_PASSWORD}` no Redis e repassar a URL protegida para a API.
+* **Decisões de Engenharia & Critérios de Hardening:**
+  1. **Política Fail-Closed nas Variáveis de Ambiente:** Substituição da sintaxe de fallback (`${VAR:-padrao}`) pela sintaxe de obrigatoriedade restrita (`${VAR:?mensagem}`). Se o desenvolvedor tentar rodar `docker compose up` sem configurar o `.env`, o Compose interrompe imediatamente o startup, impedindo execução com senhas padrão públicas.
+  2. **Isolamento de Rede:** Criação da bridge dedicada `flight-network`, segregando o tráfego dos contêineres do tráfego geral da máquina host.
+  3. **Restrição de Loopback (127.0.0.1):** As portas do PostgreSQL (`5432`), Redis (`6379`) e FastAPI (`8000`) deixaram de escutar em `0.0.0.0` e foram amarradas exclusivamente em `127.0.0.1` para inspeção local segura, sem exposição à LAN/WAN.
+  4. **Proteção de Privilégios (`no-new-privileges:true`):** Adicionado a todos os serviços (`web`, `api`, `ml`, `cache`, `db`) para impedir que processos filhos ganhem mais privilégios do que o processo pai.
+  5. **Análise Crítica de Trade-off (CLI vs Config File para Redis):** O uso inicial de `--requirepass` via flag de CLI no `docker-compose.yml` resolve a falta de autenticação no Redis, mas tem a limitação de expor a senha em `docker inspect` ou `ps aux`. A evolução para ambientes de produção orquestrados deve adotar arquivos de configuração restritos (`redis.conf` com permissão 400) ou **Docker Secrets / HashiCorp Vault**.
+* **Status:** `Mitigado (com política Fail-Closed)`
 
 ---
 
